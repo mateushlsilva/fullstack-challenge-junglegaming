@@ -1,8 +1,34 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
+  const rabbitMqUrl =
+    process.env.RABBITMQ_URL || 'amqp://admin:admin@rabbitmq:5672';
+  const queueName = 'auth_queue';
+  const port = process.env.PORT || 3002;
+
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [rabbitMqUrl],
+      queue: queueName,
+      queueOptions: { durable: false },
+    },
+  });
+
+  app.useGlobalPipes(new ValidationPipe());
+  app.useLogger(app.get(Logger));
+
+  await app.listen(port);
+
+  const logger = app.get(Logger);
+  logger.log(
+    `✉️ Microsserviço de Autenticação escutando na fila: ${queueName}
+    e rodando na porta: ${port}`,
+  );
 }
 bootstrap();
