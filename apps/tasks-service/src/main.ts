@@ -16,7 +16,7 @@ async function bootstrap() {
     options: {
       urls: [rabbitMqUrl],
       queue: queueName,
-      queueOptions: { durable: false },
+      queueOptions: { durable: true },
     },
   });
 
