@@ -13,6 +13,7 @@ async function bootstrap() {
 
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
+  app.enableShutdownHooks();
 
   const config = new DocumentBuilder()
     .setTitle('Task Management API')
