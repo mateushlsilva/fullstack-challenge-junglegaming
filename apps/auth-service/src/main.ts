@@ -16,14 +16,14 @@ async function bootstrap() {
     options: {
       urls: [rabbitMqUrl],
       queue: queueName,
-      queueOptions: { durable: false },
+      queueOptions: { durable: true },
     },
   });
 
   app.useGlobalPipes(new ValidationPipe());
   app.enableShutdownHooks();
   app.useLogger(app.get(Logger));
-
+  await app.startAllMicroservices();
   await app.listen(port);
 
   const logger = app.get(Logger);
