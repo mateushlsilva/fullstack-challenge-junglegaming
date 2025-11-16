@@ -32,6 +32,9 @@ services:
       - NODE_ENV=development
       - PORT=3001
       - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - AUTH_URL_HEALTH=http://auth-service:3002/health
+      - TASKS_URL_HEALTH=http://tasks-service:3003/health
+      - NOTIFICATIONS_URL_HEALTH=http://notifications-service:3004/health
     depends_on:
       db:
         condition: service_started
