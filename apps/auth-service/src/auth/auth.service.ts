@@ -1,4 +1,4 @@
-import { LoginUserDTO } from '@app/common';
+import { CreateUserDto, LoginUserDTO } from '@app/common';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
@@ -30,7 +30,7 @@ export class AuthService {
   ): Promise<{ access_token: string; refresh_Token: string }> {
     const user = await this.usersService.login(loginDto);
 
-    const payload = { sub: user.id, useremail: user.userEmail };
+    const payload = { sub: user.id, userEmail: user.userEmail };
 
     const access_token = await this.jwtService.signAsync(payload, {
       secret: this.JWT_ACCESS_SECRET,
@@ -66,5 +66,30 @@ export class AuthService {
     });
 
     return { access_Token: newAccessToken };
+  }
+
+  async createUser(data: CreateUserDto): Promise<{
+    access_token: string;
+    refresh_Token: string;
+    user: { id: number; userEmail: string; userName: string };
+  }> {
+    const user = await this.usersService.create(data);
+
+    const payload = { sub: user.id, userEmail: user.userEmail };
+    const access_token = await this.jwtService.signAsync(payload, {
+      secret: this.JWT_ACCESS_SECRET,
+      expiresIn: '15m',
+    });
+
+    const refresh_Token = await this.jwtService.signAsync(payload, {
+      secret: this.JWT_REFRESH_SECRET,
+      expiresIn: '7d',
+    });
+
+    return {
+      user,
+      access_token,
+      refresh_Token,
+    };
   }
 }

@@ -6,6 +6,7 @@ import { CreateUserDto, LoginUserDTO } from '@app/common';
 import { PinoLogger } from 'nestjs-pino';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class UsersService {
@@ -49,14 +50,29 @@ export class UsersService {
   }
 
   async create(data: CreateUserDto) {
+    const find = await this.repository.findOneBy({
+      userEmail: data.userEmail,
+    });
+
+    if (find) {
+      this.logger.error('O e-mail fornecido já está em uso.');
+      throw new RpcException({
+        message: 'O e-mail fornecido já está em uso',
+        code: 409,
+      });
+    }
     const newUser = this.repository.create({
       userEmail: data.userEmail,
       userName: data.userName,
-      userPassword: '',
+      userPassword: data.userPassword,
     });
 
     const save = await this.repository.save(newUser);
 
-    return { save };
+    return {
+      id: save.id,
+      userEmail: save.userEmail,
+      userName: save.userName,
+    };
   }
 }
