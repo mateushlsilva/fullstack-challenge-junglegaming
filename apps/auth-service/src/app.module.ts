@@ -6,6 +6,7 @@ import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             : undefined,
         base: {
           app_id: 'auth-service',
+        },
+        customSuccessMessage(req, res) {
+          return `${res.statusCode} ${req.method} ${req.url}`;
+        },
+        customErrorMessage(req, res) {
+          if (res.statusCode === 401) {
+            return 'Unauthorized';
+          }
+
+          return `Error ${res.statusCode} on ${req.method} ${req.url}`;
         },
       },
     }),
@@ -38,6 +49,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     HealthModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
