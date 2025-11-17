@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
+import { RRpcValidationFilter } from '@app/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,6 +27,9 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   app.useLogger(app.get(Logger));
+  // const httpAdapter = app.get(HttpAdapterHost);
+
+  app.useGlobalFilters(new RRpcValidationFilter());
   const port = process.env.PORT || 3001;
   await app.listen(port);
 
