@@ -1,7 +1,7 @@
 import { Controller, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CreateUserDto, LoginUserDTO } from '@app/common';
+import { CreateUserDto, LoginUserDTO, refreshTokenDto } from '@app/common';
 import { PinoLogger } from 'nestjs-pino';
 
 @Controller()
@@ -51,7 +51,16 @@ export class AuthController {
 
     return {
       access_token: login.access_token,
-      refresh_Token: login.refresh_Token,
+      refresh_token: login.refresh_token,
     };
+  }
+
+  @MessagePattern({ cmd: 'refresh_token' })
+  async handleRefreshToken(@Payload() data: refreshTokenDto) {
+    this.logger.info(`Auth Service: Comando 'refresh_token'`);
+
+    const refresh = await this.authService.refresh(data);
+
+    return { refresh };
   }
 }
