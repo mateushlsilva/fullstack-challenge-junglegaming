@@ -5,10 +5,11 @@ import {
   Injectable,
   InternalServerErrorException,
   OnModuleInit,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AUTH_SERVICE } from './auth.constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateUserDto, LoginUserDTO } from '@app/common';
+import { CreateUserDto, LoginUserDTO, refreshTokenDto } from '@app/common';
 import { lastValueFrom } from 'rxjs';
 
 interface Error {
@@ -56,6 +57,32 @@ export class AuthService implements OnModuleInit {
       console.error(err);
       if (err.code === 400) {
         throw new BadRequestException('Dados de login não conferem');
+      }
+
+      throw new InternalServerErrorException(
+        err?.message || 'Erro inesperado no gateway',
+      );
+    }
+  }
+
+  async refresh(data: refreshTokenDto) {
+    try {
+      const res = await lastValueFrom(
+        this.authClient.send<string>({ cmd: 'refresh_token' }, data),
+      );
+
+      return res;
+    } catch (error: unknown) {
+      const err: Error = error as Error;
+      console.error(err);
+      if (err.code === 400) {
+        throw new BadRequestException('Refresh token inválido ou ausente.');
+      }
+
+      if (err.code === 401) {
+        throw new UnauthorizedException(
+          'Refresh token expirado ou não autorizado.',
+        );
       }
 
       throw new InternalServerErrorException(
