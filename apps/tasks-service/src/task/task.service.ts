@@ -25,6 +25,28 @@ export class TaskService {
 
   // GET, POST, PUT, DELETE, GETpage,size
 
+  async findById(id: number) {
+    return await this.taskRepository.findOneBy({ id });
+  }
+
+  async findAll(page: number, size: number) {
+    const skip = (page - 1) * size;
+
+    const [tasks, total] = await this.taskRepository.findAndCount({
+      skip,
+      take: size,
+      order: { created_at: 'DESC' },
+      relations: ['assignees'],
+    });
+
+    return {
+      page,
+      size,
+      total,
+      data: tasks,
+    };
+  }
+
   async createTask(data: CreateTaskDto, creator_id: number) {
     return await this.taskRepository.manager.transaction(async (manager) => {
       const newTask = manager.create(Task, {
