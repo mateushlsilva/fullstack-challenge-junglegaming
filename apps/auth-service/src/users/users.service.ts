@@ -1,11 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user';
 import { Repository } from 'typeorm';
 import { CreateUserDto, LoginUserDTO } from '@app/common';
 import { PinoLogger } from 'nestjs-pino';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
@@ -14,8 +12,6 @@ export class UsersService {
     @InjectRepository(User)
     private repository: Repository<User>,
     private readonly logger: PinoLogger,
-    private jwtService: JwtService,
-    private readonly configService: ConfigService,
   ) {
     this.logger.setContext(UsersService.name);
   }
@@ -34,13 +30,21 @@ export class UsersService {
       .getOne();
 
     if (!find) {
-      throw new UnauthorizedException();
+      this.logger.error('Erro ao fazer login, email invalido!');
+      throw new RpcException({
+        message: 'Dados de login não conferem',
+        code: 400,
+      });
     }
 
     const isPass = await find.compare(data.userPassword);
 
     if (!isPass) {
-      throw new UnauthorizedException();
+      this.logger.error('Erro ao fazer login, senha invalida!');
+      throw new RpcException({
+        message: 'Dados de login não conferem',
+        code: 400,
+      });
     }
 
     return {

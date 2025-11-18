@@ -1,7 +1,7 @@
 import { Controller, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CreateUserDto } from '@app/common';
+import { CreateUserDto, LoginUserDTO } from '@app/common';
 import { PinoLogger } from 'nestjs-pino';
 
 @Controller()
@@ -32,6 +32,26 @@ export class AuthController {
       user: newUser.user,
       access_token: newUser.access_token,
       refresh_Token: newUser.refresh_Token,
+    };
+  }
+
+  @MessagePattern({ cmd: 'login_user' })
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
+  async handleLoginUser(@Payload() data: LoginUserDTO) {
+    this.logger.info(
+      `Auth Service: Comando 'login_user' recebido para: ${data.userEmail}`,
+    );
+
+    const login = await this.authService.signIn(data);
+
+    return {
+      access_token: login.access_token,
+      refresh_Token: login.refresh_Token,
     };
   }
 }
