@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -7,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AUTH_SERVICE } from './auth.constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateUserDto } from '@app/common';
+import { CreateUserDto, LoginUserDTO } from '@app/common';
 import { lastValueFrom } from 'rxjs';
 
 interface Error {
@@ -23,10 +24,6 @@ export class AuthService implements OnModuleInit {
     await this.authClient.connect();
   }
 
-  async find() {
-    return this.authClient.send({ cmd: 'find_user' }, {});
-  }
-
   async register(data: CreateUserDto) {
     try {
       const res = await lastValueFrom(
@@ -39,6 +36,26 @@ export class AuthService implements OnModuleInit {
       console.error(err);
       if (err.code === 409) {
         throw new ConflictException(err.message);
+      }
+
+      throw new InternalServerErrorException(
+        err?.message || 'Erro inesperado no gateway',
+      );
+    }
+  }
+
+  async login(data: LoginUserDTO) {
+    try {
+      const res = await lastValueFrom(
+        this.authClient.send<LoginUserDTO>({ cmd: 'login_user' }, data),
+      );
+
+      return res;
+    } catch (error: unknown) {
+      const err: Error = error as Error;
+      console.error(err);
+      if (err.code === 400) {
+        throw new BadRequestException('Dados de login não conferem');
       }
 
       throw new InternalServerErrorException(
