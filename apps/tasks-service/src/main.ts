@@ -1,8 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
+import { AllExceptionsFilter } from '@app/common';
 
 async function bootstrap() {
   const rabbitMqUrl =
@@ -24,6 +25,10 @@ async function bootstrap() {
   app.enableShutdownHooks();
   app.useLogger(app.get(Logger));
 
+  const httpAdapter = app.get(HttpAdapterHost);
+
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+  await app.startAllMicroservices();
   await app.listen(port);
 
   const logger = app.get(Logger);

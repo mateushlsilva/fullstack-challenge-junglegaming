@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 import {
   HealthCheck,
@@ -12,6 +12,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
 import { Transport } from '@nestjs/microservices';
+import { AuthGuard } from '@app/common';
 
 @Controller('health')
 export class HealthController {
@@ -34,6 +35,7 @@ export class HealthController {
     );
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   @HealthCheck()
   @ApiExcludeEndpoint()
