@@ -8,3 +8,7 @@ export * from './filters/rcp-exceptions.filter';
 export * from './enums/action.enum';
 export * from './enums/priority.enum';
 export * from './enums/status.enum';
+export * from './dtos/task/create-comments.dto';
+export * from './dtos/task/create-task-assignee.dto';
+export * from './dtos/task/create-task-history.dto';
+export * from './dtos/task/create-task.dto';

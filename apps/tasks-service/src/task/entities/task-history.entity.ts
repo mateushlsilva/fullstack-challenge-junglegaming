@@ -21,7 +21,6 @@ export class TaskHistory {
   @Column({ type: 'bigint' })
   user_id: number;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   @Column({ type: 'enum', enum: ActionEnum })
   action: ActionEnum;
 
