@@ -53,6 +53,17 @@ export class UsersService {
     };
   }
 
+  async verifyUserExists(id: number): Promise<boolean> {
+    const user = await this.repository.findOneBy({ id: id });
+    if (!user) {
+      throw new RpcException({
+        code: 404,
+        message: 'Usuário não encontrado',
+      });
+    }
+    return true;
+  }
+
   async create(data: CreateUserDto) {
     const find = await this.repository.findOneBy({
       userEmail: data.userEmail,
