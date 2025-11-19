@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -88,5 +89,27 @@ export class TasksController {
   })
   async deleteById(@Param('id', ParseIntPipe) id: number) {
     return await this.taskService.delete(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @Put('/:id')
+  @ApiOperation({ summary: 'Altera uma Task pelo ID' })
+  @ApiResponse({ status: 200, description: 'Task alterada com sucesso.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Task não encontrada.',
+  })
+  async putById(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: CreateTaskDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user.sub;
+    return await this.taskService.put(id, data, Number(userId));
   }
 }

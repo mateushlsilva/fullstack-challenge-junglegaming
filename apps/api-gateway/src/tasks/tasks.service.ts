@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { TASkS_SERVICE } from './task.constants';
 import { ClientProxy } from '@nestjs/microservices';
-import { CreateTaskDto } from '@app/common';
+import { CreateTaskDto, UpdateTaskDto } from '@app/common';
 import { lastValueFrom } from 'rxjs';
 
 interface Error {
@@ -93,7 +93,33 @@ export class TasksService implements OnModuleInit {
     }
   }
 
-  async put() {}
+  async put(id: number, data: UpdateTaskDto, userId: number) {
+    try {
+      const payload = { data, userId };
+      const res = await lastValueFrom(
+        this.tasksClient.send<CreateTaskDto>(
+          { cmd: 'put_task' },
+          { id, ...payload },
+        ),
+      );
+
+      return res;
+    } catch (error: unknown) {
+      const err: Error = error as Error;
+      console.error(err);
+      if (err.code == 401) {
+        throw new UnauthorizedException();
+      }
+
+      if (err.code == 404) {
+        throw new NotFoundException(err.message || 'Essa Task não existe.');
+      }
+
+      throw new InternalServerErrorException(
+        err?.message || 'Erro inesperado no gateway',
+      );
+    }
+  }
 
   async delete(id: number) {
     try {

@@ -1,18 +1,14 @@
 import {
-  Body,
   Controller,
-  Delete,
-  Param,
   ParseIntPipe,
-  Put,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { PinoLogger } from 'nestjs-pino';
-import { UpdateTaskDto } from '@app/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import type { CreateTaskInterface } from './interface/create-task.interface';
+import type { UpdateTaskInterface } from './interface/update-task.interface';
 
 @Controller('tasks')
 export class TaskController {
@@ -75,11 +71,18 @@ export class TaskController {
     return await this.taskService.delete(id);
   }
 
-  @Put('/:id')
+  @MessagePattern({ cmd: 'put_task' })
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
   async put(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() data: UpdateTaskDto,
+    @Payload('id', ParseIntPipe) id: number,
+    @Payload() messageData: UpdateTaskInterface,
   ) {
-    return await this.taskService.updateTask(id, data, 1);
+    const { data, userId } = messageData;
+    return await this.taskService.updateTask(id, data, userId);
   }
 }
