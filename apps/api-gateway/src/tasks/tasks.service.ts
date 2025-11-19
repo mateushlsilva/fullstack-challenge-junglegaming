@@ -25,7 +25,28 @@ export class TasksService implements OnModuleInit {
     await this.tasksClient.connect();
   }
 
-  async query() {}
+  async query(page: number, size: number) {
+    try {
+      const res = await lastValueFrom(
+        this.tasksClient.send<CreateTaskDto>(
+          { cmd: 'page_task' },
+          { page, size },
+        ),
+      );
+
+      return res;
+    } catch (error: unknown) {
+      const err: Error = error as Error;
+      console.error(error);
+      if (err.code == 401) {
+        throw new UnauthorizedException();
+      }
+
+      throw new InternalServerErrorException(
+        err?.message || 'Erro inesperado no gateway',
+      );
+    }
+  }
 
   async getById(id: number) {
     try {

@@ -2,11 +2,9 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   Param,
   ParseIntPipe,
   Put,
-  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -51,10 +49,16 @@ export class TaskController {
     return await this.taskService.findById(id);
   }
 
-  @Get()
+  @MessagePattern({ cmd: 'page_task' })
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
   async findAll(
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('size', ParseIntPipe) size: number = 10,
+    @Payload('page', ParseIntPipe) page: number = 1,
+    @Payload('size', ParseIntPipe) size: number = 10,
   ) {
     return await this.taskService.findAll(page, size);
   }

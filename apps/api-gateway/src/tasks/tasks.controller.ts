@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -50,5 +51,21 @@ export class TasksController {
   })
   async get(@Param('id', ParseIntPipe) id: number) {
     return await this.taskService.getById(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @Get()
+  @ApiOperation({ summary: 'Buscar uma Tasks por paginação' })
+  @ApiResponse({ status: 200, description: 'Tasks encontrada com sucesso.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  async findQuery(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('size', ParseIntPipe) size: number = 10,
+  ) {
+    return await this.taskService.query(page, size);
   }
 }
