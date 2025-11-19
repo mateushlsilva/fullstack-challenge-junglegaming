@@ -23,6 +23,8 @@ services:
       dockerfile: ./apps/api-gateway/Dockerfile
     ports:
       - '3001:3001'
+    env_file:
+      - .env
     volumes:
       - .:/app
       - ./packages:/app/packages
@@ -35,6 +37,8 @@ services:
       - AUTH_URL_HEALTH=http://auth-service:3002/health
       - TASKS_URL_HEALTH=http://tasks-service:3003/health
       - NOTIFICATIONS_URL_HEALTH=http://notifications-service:3004/health
+      - JWT_ACCESS_SECRET=sua_secret_access
+      - JWT_REFRESH_SECRET=sua_secret_refresh
     depends_on:
       db:
         condition: service_started

@@ -6,6 +6,7 @@ import { Task } from './entities/task.entity';
 import { TaskAssignee } from './entities/task-assignee.entity';
 import { TaskHistory } from './entities/task-history.entity';
 import { ActionEnum, CreateTaskDto, UpdateTaskDto } from '@app/common';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class TaskService {
@@ -18,7 +19,14 @@ export class TaskService {
   }
 
   async findById(id: number) {
-    return await this.taskRepository.findOneBy({ id });
+    const find = await this.taskRepository.findOneBy({ id });
+    if (!find) {
+      throw new RpcException({
+        code: 404,
+        message: 'Task não encontrada',
+      });
+    }
+    return find;
   }
 
   async findAll(page: number, size: number) {

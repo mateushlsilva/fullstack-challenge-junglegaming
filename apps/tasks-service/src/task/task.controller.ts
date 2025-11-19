@@ -5,13 +5,16 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Post,
   Put,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { PinoLogger } from 'nestjs-pino';
-import { CreateTaskDto, UpdateTaskDto } from '@app/common';
+import { UpdateTaskDto } from '@app/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import type { CreateTaskInterface } from './interface/create-task.interface';
 
 @Controller('tasks')
 export class TaskController {
@@ -22,13 +25,29 @@ export class TaskController {
     this.logger.setContext(TaskController.name);
   }
 
-  @Post()
-  async post(@Body() data: CreateTaskDto) {
-    return await this.taskService.createTask(data, 1); //Trocar depois esse 1 pelo id vindo do RMQ
+  @MessagePattern({ cmd: 'create_task' })
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
+  async post(@Payload() menssageData: CreateTaskInterface) {
+    const { data, userId } = menssageData;
+    this.logger.info(
+      `Task Service: Comando 'create_task' recebido para: ${data.taskTitle}`,
+    );
+    return await this.taskService.createTask(data, userId);
   }
 
-  @Get('/:id')
-  async get(@Param('id', ParseIntPipe) id: number) {
+  @MessagePattern({ cmd: 'getid_task' })
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
+  async get(@Payload('id', ParseIntPipe) id: number) {
     return await this.taskService.findById(id);
   }
 

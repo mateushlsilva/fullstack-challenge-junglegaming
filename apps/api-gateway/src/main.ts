@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
-import { RRpcValidationFilter } from '@app/common';
+import { AllExceptionsFilter, RRpcValidationFilter } from '@app/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,15 +20,26 @@ async function bootstrap() {
     .setTitle('Task Management API')
     .setDescription('API Gateway para o Sistema de Gestão de Tarefas')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
   app.useLogger(app.get(Logger));
-  // const httpAdapter = app.get(HttpAdapterHost);
+  const httpAdapter = app.get(HttpAdapterHost);
 
-  app.useGlobalFilters(new RRpcValidationFilter());
+  app.useGlobalFilters(
+    new AllExceptionsFilter(httpAdapter),
+    new RRpcValidationFilter(),
+  );
   const port = process.env.PORT || 3001;
   await app.listen(port);
 
