@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Task } from './task.entity';
 
@@ -13,6 +14,7 @@ export class TaskAssignee {
   id: number;
 
   @ManyToOne(() => Task, (task) => task.assignees, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'task_id' })
   task: Task;
 
   @Column({ type: 'bigint' })

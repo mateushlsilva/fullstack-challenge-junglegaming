@@ -12,3 +12,4 @@ export * from './dtos/task/create-comments.dto';
 export * from './dtos/task/create-task-assignee.dto';
 export * from './dtos/task/create-task-history.dto';
 export * from './dtos/task/create-task.dto';
+export * from './dtos/task/update-task.dto';

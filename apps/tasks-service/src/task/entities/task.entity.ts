@@ -25,11 +25,9 @@ export class Task {
   @Column({ type: 'timestamp', nullable: true })
   taskDueDate: Date;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
   @Column({ type: 'enum', enum: PriorityEnum, default: PriorityEnum.LOW })
   taskPriority: PriorityEnum;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
   @Column({ type: 'enum', enum: StatusEnum, default: StatusEnum.TODO })
   taskStatus: StatusEnum;
 

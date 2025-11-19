@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
 import { TaskAssignee } from './entities/task-assignee.entity';
 import { TaskHistory } from './entities/task-history.entity';
-import { ActionEnum, CreateTaskDto } from '@app/common';
+import { ActionEnum, CreateTaskDto, UpdateTaskDto } from '@app/common';
 
 @Injectable()
 export class TaskService {
@@ -88,6 +88,93 @@ export class TaskService {
       await manager.save(history);
 
       return savedTask;
+    });
+  }
+
+  async delete(id: number) {
+    return await this.taskRepository.delete({ id });
+  }
+
+  async updateTask(id: number, data: UpdateTaskDto, creator_id: number) {
+    return await this.taskRepository.manager.transaction(async (manager) => {
+      const task = await manager.findOne(Task, {
+        where: { id },
+        relations: ['assignees'],
+      });
+
+      if (!task) {
+        throw new NotFoundException('Task not found');
+      }
+      const old_value: Task = JSON.parse(JSON.stringify(task)) as Task;
+
+      task.taskTitle = data.taskTitle ?? task.taskTitle;
+      task.taskDescription = data.taskDescription ?? task.taskDescription;
+      task.taskPriority = data.taskPriority ?? task.taskPriority;
+      task.taskStatus = data.taskStatus ?? task.taskStatus;
+      task.taskDueDate = data.taskDueDate
+        ? new Date(data.taskDueDate)
+        : task.taskDueDate;
+
+      await manager.save(task);
+
+      // Atualizar assignees
+      if (data.assigned_user_ids) {
+        // Lista atual vindo do banco
+        const existing = task?.assignees.map((a) => Number(a.user_id));
+
+        this.logger.info('Verifica os ids: ', existing);
+        // Garante que o criador SEMPRE está no array final
+        const incoming = Array.from(
+          new Set([creator_id, ...data.assigned_user_ids]),
+        );
+
+        this.logger.info('Verifica os incoming: ', incoming);
+        // Quem deve ser adicionado (está no incoming, mas não está no existing)
+        const toAdd = incoming.filter((userId) => !existing.includes(userId));
+
+        this.logger.info('Verifica os add: ', toAdd);
+        // Quem deve ser removido (está no existing, mas não está no incoming)
+        const toRemove = existing.filter(
+          (userId) => !incoming.includes(userId),
+        );
+
+        this.logger.info('Verifica os remove: ', toRemove);
+
+        // Remover os que não devem mais estar
+        if (toRemove.length > 0) {
+          await manager.delete(TaskAssignee, {
+            task: { id: task.id },
+            user_id: In(toRemove),
+          });
+        }
+
+        // Criar novos assignees
+        if (toAdd.length > 0) {
+          const newAssignees = toAdd.map((userId) =>
+            manager.create(TaskAssignee, {
+              task,
+              user_id: userId,
+            }),
+          );
+
+          await manager.save(TaskAssignee, newAssignees);
+        }
+      }
+
+      await manager.save(TaskHistory, {
+        task,
+        user_id: creator_id,
+        action: ActionEnum.UPDATED,
+        old_value: old_value,
+        new_value: task,
+      });
+
+      return {
+        ...task,
+        assignees: await manager.find(TaskAssignee, {
+          where: { task: { id } },
+        }),
+      };
     });
   }
 }

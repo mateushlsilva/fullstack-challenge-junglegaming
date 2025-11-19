@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Task } from './task.entity';
 import { ActionEnum } from '@app/common';
@@ -16,6 +17,7 @@ export class TaskHistory {
   @ManyToOne(() => Task, (task) => task.history, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'task_id' })
   task: Task;
 
   @Column({ type: 'bigint' })
