@@ -28,7 +28,7 @@ export class TaskService {
       skip,
       take: size,
       order: { created_at: 'DESC' },
-      relations: ['assignees'],
+      relations: { assignees: true, comments: true },
     });
 
     return {
