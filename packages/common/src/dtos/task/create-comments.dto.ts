@@ -1,4 +1,4 @@
-import { IsNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsNumber, IsString, MaxLength, MinLength, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCommentDto {
@@ -6,15 +6,17 @@ export class CreateCommentDto {
     description: 'ID da tarefa à qual o comentário pertence',
     example: 1,
   })
+  @IsOptional()
   @IsNumber()
-  task_id: number;
+  task_id?: number;
 
   @ApiProperty({
     description: 'ID do usuário que criou o comentário (vindo do auth-service)',
     example: 123,
   })
+  @IsOptional()
   @IsNumber()
-  user_id: number;
+  user_id?: number;
 
   @ApiProperty({
     description: 'Conteúdo do comentário',

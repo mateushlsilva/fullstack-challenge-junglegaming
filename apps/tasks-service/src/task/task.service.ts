@@ -12,18 +12,10 @@ export class TaskService {
   constructor(
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
-
-    @InjectRepository(TaskAssignee)
-    private taskAssigneeRepository: Repository<TaskAssignee>,
-
-    @InjectRepository(TaskHistory)
-    private taskHistoryRepository: Repository<TaskHistory>,
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(TaskService.name);
   }
-
-  // GET, POST, PUT, DELETE, GETpage,size
 
   async findById(id: number) {
     return await this.taskRepository.findOneBy({ id });

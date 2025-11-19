@@ -13,7 +13,7 @@ import { TaskService } from './task.service';
 import { PinoLogger } from 'nestjs-pino';
 import { CreateTaskDto, UpdateTaskDto } from '@app/common';
 
-@Controller('task')
+@Controller('tasks')
 export class TaskController {
   constructor(
     private taskService: TaskService,
