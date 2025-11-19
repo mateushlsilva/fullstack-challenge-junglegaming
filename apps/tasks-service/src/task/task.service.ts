@@ -92,7 +92,16 @@ export class TaskService {
   }
 
   async delete(id: number) {
-    return await this.taskRepository.delete({ id });
+    this.logger.info(`[TaskService] Tentativa de deletar Task ID: ${id}`);
+    const del = await this.taskRepository.delete({ id });
+    this.logger.info(`[TypeORM Result] Linhas Afetadas (affected): ${del.affected}`);
+    if (del.affected === 0) {
+      throw new RpcException({
+        code: 404,
+        message: 'Task não encontrada',
+      });
+    }
+    return del;
   }
 
   async updateTask(id: number, data: UpdateTaskDto, creator_id: number) {

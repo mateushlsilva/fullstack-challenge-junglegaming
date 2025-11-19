@@ -63,8 +63,15 @@ export class TaskController {
     return await this.taskService.findAll(page, size);
   }
 
-  @Delete('/:id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  @MessagePattern({ cmd: 'delete_task' })
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
+  async delete(@Payload('id', ParseIntPipe) id: number) {
+    this.logger.info(`[TaskController] Tentativa de deletar Task ID: ${id}`);
     return await this.taskService.delete(id);
   }
 

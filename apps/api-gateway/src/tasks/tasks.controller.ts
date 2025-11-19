@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
@@ -67,5 +70,23 @@ export class TasksController {
     @Query('size', ParseIntPipe) size: number = 10,
   ) {
     return await this.taskService.query(page, size);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @Delete('/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Deleta uma Task pelo ID' })
+  @ApiResponse({ status: 204, description: 'Task deletada com sucesso.' })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Task não encontrada.',
+  })
+  async deleteById(@Param('id', ParseIntPipe) id: number) {
+    return await this.taskService.delete(id);
   }
 }

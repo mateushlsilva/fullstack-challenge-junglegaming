@@ -95,5 +95,27 @@ export class TasksService implements OnModuleInit {
 
   async put() {}
 
-  async delete() {}
+  async delete(id: number) {
+    try {
+      await lastValueFrom(
+        this.tasksClient.send<CreateTaskDto>({ cmd: 'delete_task' }, { id }),
+      );
+
+      return;
+    } catch (error: unknown) {
+      const err: Error = error as Error;
+      console.error(error);
+      if (err.code == 401) {
+        throw new UnauthorizedException();
+      }
+      if (err.code == 404) {
+        console.error('O not found foi aqui');
+        throw new NotFoundException(err.message || 'Essa Task não existe.');
+      }
+
+      throw new InternalServerErrorException(
+        err?.message || 'Erro inesperado no gateway',
+      );
+    }
+  }
 }
