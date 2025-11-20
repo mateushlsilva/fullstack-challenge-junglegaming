@@ -1,17 +1,15 @@
 import { CreateCommentDto } from '@app/common';
 import {
-  Body,
   Controller,
-  Get,
-  Param,
   ParseIntPipe,
-  Post,
-  Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { PinoLogger } from 'nestjs-pino';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
-@Controller('tasks/:taskId/comments')
+@Controller()
 export class CommentsController {
   constructor(
     private commentService: CommentsService,
@@ -20,20 +18,34 @@ export class CommentsController {
     this.logger.setContext(CommentsController.name);
   }
 
-  @Get()
+  @MessagePattern({ cmd: 'page_comments' })
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
   async findAll(
-    @Param('taskId', ParseIntPipe) taskId: number,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('size', ParseIntPipe) size: number = 10,
+    @Payload('taskId', ParseIntPipe) taskId: number,
+    @Payload('page', ParseIntPipe) page: number = 1,
+    @Payload('size', ParseIntPipe) size: number = 10,
   ) {
     return await this.commentService.getQuery(taskId, page, size);
   }
 
-  @Post()
+  @MessagePattern({ cmd: 'create_comments' })
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  )
   async post(
-    @Param('taskId', ParseIntPipe) taskId: number,
-    @Body() data: CreateCommentDto,
+    @Payload('taskId', ParseIntPipe) taskId: number,
+    @Payload() payload: any,
   ) {
+    this.logger.debug(`Esse é o idTask: ${taskId}`);
+    const data: CreateCommentDto = payload as CreateCommentDto;
     data.task_id = taskId;
     return await this.commentService.createComment(data);
   }
