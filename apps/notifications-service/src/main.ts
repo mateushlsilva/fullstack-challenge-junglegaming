@@ -22,6 +22,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
   app.enableShutdownHooks();
+  await app.startAllMicroservices();
   app.useLogger(app.get(Logger));
 
   await app.listen(port);
