@@ -53,8 +53,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/auth-service/Dockerfile
-    ports:
-      - '3002:3002'
+    expose:
+      - '3002'
     env_file:
       - .env
     volumes:
@@ -87,8 +87,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/tasks-service/Dockerfile
-    ports:
-      - '3003:3003'
+    expose:
+      - '3003'
     volumes:
       - .:/app
       - ./packages:/app/packages
@@ -117,8 +117,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/notifications-service/Dockerfile
-    ports:
-      - '3004:3004'
+    expose:
+      - '3004'
     volumes:
       - .:/app
       - ./packages:/app/packages
