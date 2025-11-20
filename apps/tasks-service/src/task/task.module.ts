@@ -10,6 +10,6 @@ import { TaskHistory } from './entities/task-history.entity';
   imports: [TypeOrmModule.forFeature([Task, TaskAssignee, TaskHistory])],
   providers: [TaskService],
   controllers: [TaskController],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, TaskModule],
 })
 export class TaskModule {}

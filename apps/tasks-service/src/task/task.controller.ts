@@ -10,7 +10,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import type { CreateTaskInterface } from './interface/create-task.interface';
 import type { UpdateTaskInterface } from './interface/update-task.interface';
 
-@Controller('tasks')
+@Controller()
 export class TaskController {
   constructor(
     private taskService: TaskService,
