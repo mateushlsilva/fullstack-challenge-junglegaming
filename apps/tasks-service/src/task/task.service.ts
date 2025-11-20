@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
 import { In, Repository } from 'typeorm';
@@ -6,14 +6,19 @@ import { Task } from './entities/task.entity';
 import { TaskAssignee } from './entities/task-assignee.entity';
 import { TaskHistory } from './entities/task-history.entity';
 import { ActionEnum, CreateTaskDto, UpdateTaskDto } from '@app/common';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { NOTIFICATIONS_SERVICE } from './notification.constants';
 
 @Injectable()
 export class TaskService {
   constructor(
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
+    @InjectRepository(TaskAssignee)
+    private taskAssigneeRepository: Repository<TaskAssignee>,
     private readonly logger: PinoLogger,
+    @Inject(NOTIFICATIONS_SERVICE)
+    private readonly notificationClient: ClientProxy,
   ) {
     this.logger.setContext(TaskService.name);
   }
@@ -48,47 +53,77 @@ export class TaskService {
   }
 
   async createTask(data: CreateTaskDto, creator_id: number) {
-    return await this.taskRepository.manager.transaction(async (manager) => {
-      const newTask = manager.create(Task, {
-        taskTitle: data.taskTitle,
-        taskDescription: data.taskDescription,
-        taskDueDate: new Date(data.taskDueDate),
-        taskPriority: data.taskPriority,
-        taskStatus: data.taskStatus,
-      });
+    return await this.taskRepository.manager
+      .transaction(async (manager) => {
+        const newTask = manager.create(Task, {
+          taskTitle: data.taskTitle,
+          taskDescription: data.taskDescription,
+          taskDueDate: new Date(data.taskDueDate),
+          taskPriority: data.taskPriority,
+          taskStatus: data.taskStatus,
+        });
 
-      const savedTask = await manager.save(newTask);
+        const savedTask = await manager.save(newTask);
 
-      // Associa o creator
-      const creatorAssignee = manager.create(TaskAssignee, {
-        task: savedTask,
-        user_id: creator_id,
-      });
-      await manager.save(creatorAssignee);
+        // Associa o creator
+        const creatorAssignee = manager.create(TaskAssignee, {
+          task: savedTask,
+          user_id: creator_id,
+        });
+        await manager.save(creatorAssignee);
 
-      // Associa os outros usuários (exceto o creator)
-      const otherUserIds =
-        data.assigned_user_ids?.filter((id) => id !== creator_id) || [];
-      if (otherUserIds.length) {
-        const assignees = otherUserIds.map((userId) =>
-          manager.create(TaskAssignee, {
-            task: savedTask,
-            user_id: userId,
-          }),
+        // Associa os outros usuários (exceto o creator)
+        const otherUserIds =
+          data.assigned_user_ids?.filter((id) => id !== creator_id) || [];
+        if (otherUserIds.length) {
+          const assignees = otherUserIds.map((userId) =>
+            manager.create(TaskAssignee, {
+              task: savedTask,
+              user_id: userId,
+            }),
+          );
+          await manager.save(assignees);
+        }
+
+        const history = manager.create(TaskHistory, {
+          task: savedTask,
+          user_id: creator_id,
+          new_value: savedTask,
+          action: ActionEnum.CREATED,
+        });
+        await manager.save(history);
+
+        return savedTask;
+      })
+      .then(async (savedTask) => {
+        this.logger.info(
+          `Entrando no then da criação da task: ${savedTask.taskTitle}`,
         );
-        await manager.save(assignees);
-      }
+        // Buscar todos os usuários associados à task
+        const assignedUsers = await this.taskAssigneeRepository.find({
+          where: { task: { id: savedTask.id } },
+        });
 
-      const history = manager.create(TaskHistory, {
-        task: savedTask,
-        user_id: creator_id,
-        new_value: savedTask,
-        action: ActionEnum.CREATED,
+        const userIds = assignedUsers.map((a) => a.user_id);
+
+        // 2. Enviar o evento para o Notification Service
+        this.notificationClient.emit('task.created', {
+          id: savedTask.id,
+          taskTitle: savedTask.taskTitle,
+          creatorId: creator_id,
+          assigned_user_ids: userIds,
+          taskPriority: savedTask.taskPriority,
+          taskStatus: savedTask.taskStatus,
+          taskDescription: savedTask.taskDescription,
+          taskDueDate: savedTask.taskDueDate,
+        });
+
+        this.logger.info(
+          `Task enviada para o notification: ${savedTask.taskTitle}`,
+        );
+
+        return savedTask;
       });
-      await manager.save(history);
-
-      return savedTask;
-    });
   }
 
   async delete(id: number) {
