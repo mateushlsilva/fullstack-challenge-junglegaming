@@ -15,7 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
             ? { target: 'pino-pretty' }
             : undefined,
         base: {
-          app_id: 'auth-service',
+          app_id: 'notifications-service',
         },
       },
     }),
