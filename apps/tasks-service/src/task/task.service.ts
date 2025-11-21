@@ -142,88 +142,113 @@ export class TaskService {
   }
 
   async updateTask(id: number, data: UpdateTaskDto, creator_id: number) {
-    return await this.taskRepository.manager.transaction(async (manager) => {
-      const task = await manager.findOne(Task, {
-        where: { id },
-        relations: ['assignees'],
-      });
-
-      if (!task) {
-        throw new RpcException({
-          code: 404,
-          message: 'Task não encontrada',
+    return await this.taskRepository.manager
+      .transaction(async (manager) => {
+        const task = await manager.findOne(Task, {
+          where: { id },
+          relations: ['assignees'],
         });
-      }
-      const old_value: Task = JSON.parse(JSON.stringify(task)) as Task;
 
-      task.taskTitle = data.taskTitle ?? task.taskTitle;
-      task.taskDescription = data.taskDescription ?? task.taskDescription;
-      task.taskPriority = data.taskPriority ?? task.taskPriority;
-      task.taskStatus = data.taskStatus ?? task.taskStatus;
-      task.taskDueDate = data.taskDueDate
-        ? new Date(data.taskDueDate)
-        : task.taskDueDate;
-
-      await manager.save(task);
-
-      // Atualizar assignees
-      if (data.assigned_user_ids) {
-        // Lista atual vindo do banco
-        const existing = task?.assignees.map((a) => Number(a.user_id));
-
-        this.logger.info('Verifica os ids: ', existing);
-        // Garante que o criador SEMPRE está no array final
-        const incoming = Array.from(
-          new Set([creator_id, ...data.assigned_user_ids]),
-        );
-
-        this.logger.info('Verifica os incoming: ', incoming);
-        // Quem deve ser adicionado (está no incoming, mas não está no existing)
-        const toAdd = incoming.filter((userId) => !existing.includes(userId));
-
-        this.logger.info('Verifica os add: ', toAdd);
-        // Quem deve ser removido (está no existing, mas não está no incoming)
-        const toRemove = existing.filter(
-          (userId) => !incoming.includes(userId),
-        );
-
-        this.logger.info('Verifica os remove: ', toRemove);
-
-        // Remover os que não devem mais estar
-        if (toRemove.length > 0) {
-          await manager.delete(TaskAssignee, {
-            task: { id: task.id },
-            user_id: In(toRemove),
+        if (!task) {
+          throw new RpcException({
+            code: 404,
+            message: 'Task não encontrada',
           });
         }
+        const old_value: Task = JSON.parse(JSON.stringify(task)) as Task;
 
-        // Criar novos assignees
-        if (toAdd.length > 0) {
-          const newAssignees = toAdd.map((userId) =>
-            manager.create(TaskAssignee, {
-              task,
-              user_id: userId,
-            }),
+        task.taskTitle = data.taskTitle ?? task.taskTitle;
+        task.taskDescription = data.taskDescription ?? task.taskDescription;
+        task.taskPriority = data.taskPriority ?? task.taskPriority;
+        task.taskStatus = data.taskStatus ?? task.taskStatus;
+        task.taskDueDate = data.taskDueDate
+          ? new Date(data.taskDueDate)
+          : task.taskDueDate;
+
+        await manager.save(task);
+
+        // Atualizar assignees
+        if (data.assigned_user_ids) {
+          // Lista atual vindo do banco
+          const existing = task?.assignees.map((a) => Number(a.user_id));
+
+          this.logger.info('Verifica os ids: ', existing);
+          // Garante que o criador SEMPRE está no array final
+          const incoming = Array.from(
+            new Set([creator_id, ...data.assigned_user_ids]),
           );
 
-          await manager.save(TaskAssignee, newAssignees);
+          this.logger.info('Verifica os incoming: ', incoming);
+          // Quem deve ser adicionado (está no incoming, mas não está no existing)
+          const toAdd = incoming.filter((userId) => !existing.includes(userId));
+
+          this.logger.info('Verifica os add: ', toAdd);
+          // Quem deve ser removido (está no existing, mas não está no incoming)
+          const toRemove = existing.filter(
+            (userId) => !incoming.includes(userId),
+          );
+
+          this.logger.info('Verifica os remove: ', toRemove);
+
+          // Remover os que não devem mais estar
+          if (toRemove.length > 0) {
+            await manager.delete(TaskAssignee, {
+              task: { id: task.id },
+              user_id: In(toRemove),
+            });
+          }
+
+          // Criar novos assignees
+          if (toAdd.length > 0) {
+            const newAssignees = toAdd.map((userId) =>
+              manager.create(TaskAssignee, {
+                task,
+                user_id: userId,
+              }),
+            );
+
+            await manager.save(TaskAssignee, newAssignees);
+          }
         }
-      }
 
-      await manager.save(TaskHistory, {
-        task,
-        user_id: creator_id,
-        action: ActionEnum.UPDATED,
-        old_value: old_value,
-        new_value: task,
+        await manager.save(TaskHistory, {
+          task,
+          user_id: creator_id,
+          action: ActionEnum.UPDATED,
+          old_value: old_value,
+          new_value: task,
+        });
+
+        return {
+          ...task,
+          assignees: await manager.find(TaskAssignee, {
+            where: { task: { id } },
+          }),
+        };
+      })
+      .then(async (updatedTask) => {
+        this.logger.info(
+          `Entrando no then do update task: ${updatedTask.taskTitle}`,
+        );
+
+        const userIds = updatedTask.assignees.map((a) => a.user_id);
+
+        this.notificationClient.emit('task.updated', {
+          id: updatedTask.id,
+          taskTitle: updatedTask.taskTitle,
+          creatorId: creator_id,
+          assigned_user_ids: userIds,
+          taskPriority: updatedTask.taskPriority,
+          taskStatus: updatedTask.taskStatus,
+          taskDescription: updatedTask.taskDescription,
+          taskDueDate: updatedTask.taskDueDate,
+        });
+
+        this.logger.info(
+          `Task enviada para o notification: ${updatedTask.taskTitle}`,
+        );
+
+        return updatedTask;
       });
-
-      return {
-        ...task,
-        assignees: await manager.find(TaskAssignee, {
-          where: { task: { id } },
-        }),
-      };
-    });
   }
 }

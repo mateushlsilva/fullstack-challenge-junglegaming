@@ -35,6 +35,6 @@ import { NOTIFICATIONS_SERVICE } from './notification.constants';
   ],
   providers: [TaskService],
   controllers: [TaskController],
-  exports: [TypeOrmModule, TaskModule],
+  exports: [TypeOrmModule],
 })
 export class TaskModule {}
