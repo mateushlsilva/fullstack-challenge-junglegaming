@@ -133,6 +133,7 @@ services:
       - DB_USERNAME=postgres
       - DB_PASSWORD=password
       - DB_NAME=challenge_db
+      - GATEWAY_WS_URL=ws://localhost:3001
     depends_on:
       db:
         condition: service_started
