@@ -4,17 +4,31 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AllExceptionsFilter, RRpcValidationFilter } from '@app/common';
+import { Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
+  const rabbitMqUrl =
+    process.env.RABBITMQ_URL || 'amqp://admin:admin@rabbitmq:5672';
+  const queueName = 'gateway_queue';
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api', {
     exclude: ['/'],
   });
 
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [rabbitMqUrl],
+      queue: queueName,
+      queueOptions: { durable: true },
+    },
+  });
+
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   app.enableShutdownHooks();
+  await app.startAllMicroservices();
 
   const config = new DocumentBuilder()
     .setTitle('Task Management API')
