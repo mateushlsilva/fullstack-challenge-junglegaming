@@ -1,7 +1,11 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
 import { Socket, io } from 'socket.io-client';
+import { Notification } from './entities/notification.entity';
+import { Repository } from 'typeorm';
+import { CreateNotificationDto, NotificationStatus } from '@app/common';
 
 @Injectable()
 export class WebsocketService implements OnModuleInit, OnModuleDestroy {
@@ -10,6 +14,8 @@ export class WebsocketService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly logger: PinoLogger,
     private configService: ConfigService,
+    @InjectRepository(Notification)
+    private repository: Repository<Notification>,
   ) {
     this.logger.setContext(WebsocketService.name);
     this.GATEWAY_WS_URL =
@@ -53,5 +59,25 @@ export class WebsocketService implements OnModuleInit, OnModuleDestroy {
         event,
       );
     }
+  }
+
+  async postNotifications(data: CreateNotificationDto) {
+    const createNotification = this.repository.create(data);
+    return await this.repository.save(createNotification);
+  }
+
+  async findStatusUnread(userId: string) {
+    return await this.repository.find({
+      where: { userId: userId, status: NotificationStatus.UNREAD },
+    });
+  }
+
+  async patchStatus(id: string) {
+    const find = await this.repository.findOneBy({ id });
+    if (!find) {
+      return null;
+    }
+    find.status = NotificationStatus.READ;
+    return await this.repository.save(find);
   }
 }
