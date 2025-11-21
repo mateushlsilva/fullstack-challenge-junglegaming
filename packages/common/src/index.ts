@@ -18,3 +18,5 @@ export * from './dtos/task/create-task.dto';
 export * from './dtos/task/update-task.dto';
 export * from './dtos/task/task-created-event.dto';
 export * from './dtos/task/task-updated-event.dto';
+export * from './dtos/task/comment-created-event.dto';
+export * from './dtos/notification/create-notification.dto';
