@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm';
 import { Comment } from './entities/comments.entity';
 import { CreateCommentDto } from '@app/common';
 import { Task } from 'src/task/entities/task.entity';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { NOTIFICATIONS_SERVICE } from './notification.constants';
+import { TaskAssignee } from 'src/task/entities/task-assignee.entity';
 
 @Injectable()
 export class CommentsService {
@@ -14,7 +16,12 @@ export class CommentsService {
     private repository: Repository<Comment>,
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
+
+    @InjectRepository(TaskAssignee)
+    private taskAssigneeRepository: Repository<TaskAssignee>,
     private readonly logger: PinoLogger,
+    @Inject(NOTIFICATIONS_SERVICE)
+    private readonly notificationClient: ClientProxy,
   ) {
     this.logger.setContext(CommentsService.name);
   }
@@ -77,22 +84,49 @@ export class CommentsService {
   }
 
   async createComment(data: CreateCommentDto) {
-    this.logger.info(`TaskID é: ${data.task_id}`);
-    const find = await this.taskRepository.findOneBy({ id: data.task_id });
-    this.logger.debug(`Essa é a task: ${find?.taskTitle}`);
-    if (!find) {
-      throw new RpcException({
-        code: 404,
-        message: 'Task não encontrada',
-      });
-    }
-    const newComment = this.repository.create({
-      content: data.content,
-      task: { id: data.task_id },
-      user_id: data.user_id,
-    });
+    return await this.taskRepository.manager
+      .transaction(async (manager) => {
+        this.logger.info(`TaskID é: ${data.task_id}`);
+        const find = await manager.findOneBy(Task, { id: data.task_id });
+        this.logger.debug(`Essa é a task: ${find?.taskTitle}`);
+        if (!find) {
+          throw new RpcException({
+            code: 404,
+            message: 'Task não encontrada',
+          });
+        }
+        const newComment = manager.create(Comment, {
+          content: data.content,
+          task: { id: data.task_id },
+          user_id: data.user_id,
+        });
 
-    const save = await this.repository.save(newComment);
-    return save;
+        const save = await this.repository.save(newComment);
+        return save;
+      })
+      .then(async (saved) => {
+        this.logger.info(
+          `Entrando no then da criação do comentário: ${saved.content}`,
+        );
+
+        const assignedUsers = await this.taskAssigneeRepository.find({
+          where: { task: { id: saved.task.id } },
+        });
+
+        const userIds = assignedUsers.map((a) => a.user_id);
+
+        this.notificationClient.emit('task.comment.created', {
+          id: saved.id,
+          task_id: saved.task.id,
+          user_id: saved.user_id,
+          assigned_user_ids: userIds,
+          content: saved.content,
+        });
+
+        this.logger.info(
+          `Comentário enviado para o notification: ${saved.content}`,
+        );
+        return saved;
+      });
   }
 }
