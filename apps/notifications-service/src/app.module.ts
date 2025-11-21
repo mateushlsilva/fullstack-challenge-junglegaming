@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { HealthModule } from './health/health.module';
-import { WebsocketModule } from './websocket/websocket.module';
+import { NotificationModule } from './notification/notification.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -35,7 +35,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
     }),
     HealthModule,
-    WebsocketModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}

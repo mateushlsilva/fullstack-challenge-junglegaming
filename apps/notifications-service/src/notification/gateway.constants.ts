@@ -1,0 +1,1 @@
+export const GATEWAY_SERVICE = 'GATEWAY_SERVICE';

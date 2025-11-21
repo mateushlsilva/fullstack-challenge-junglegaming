@@ -17,6 +17,7 @@ async function bootstrap() {
       urls: [rabbitMqUrl],
       queue: queueName,
       queueOptions: { durable: true },
+      noAck: false,
     },
   });
 
@@ -28,7 +29,6 @@ async function bootstrap() {
   await app.listen(port);
 
   const logger = app.get(Logger);
-  logger.log(`🔔 Notifications Service (WS) rodando na porta: ${port}`);
   logger.log(`✉️ Notifications Service (RMQ) escutando na fila: ${queueName}`);
 }
 bootstrap();
