@@ -11,6 +11,10 @@ import { NotificationType } from '../../enums/notification-type.enum';
 import { NotificationStatus } from '../../enums/notification-status.enum';
 
 export class CreateNotificationDto {
+  @IsOptional()
+  @IsString()
+  id?: string;
+
   @IsEnum(NotificationType)
   type: NotificationType;
 
