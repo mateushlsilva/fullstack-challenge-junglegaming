@@ -12,9 +12,10 @@ export class NotificationController {
   constructor(private readonly notification: NotificationService) {}
 
   @EventPattern('internal:notify')
-  async handleNotify(
+  handleNotify(
     @Payload()
     data: {
+      id: string;
       userId: string;
       event: string;
       payload: {
@@ -26,7 +27,6 @@ export class NotificationController {
       };
     },
   ) {
-    console.log("Chegou aqui11111111111");
-    await this.notification.sendToUser(data);
+    this.notification.sendToUser(data);
   }
 }

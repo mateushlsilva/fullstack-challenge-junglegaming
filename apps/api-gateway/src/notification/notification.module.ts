@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { WebSocketNotification } from './websocket';
 import { NotificationController } from './notification.controller';
@@ -8,6 +8,7 @@ import { NOTIFICATION_GATEWAY_SERVICE } from './notification-gateway.constants';
 
 @Module({
   imports: [
+    forwardRef(() => NotificationModule),
     ConfigModule.forRoot({ isGlobal: true }),
     ClientsModule.registerAsync([
       {
@@ -20,7 +21,7 @@ import { NOTIFICATION_GATEWAY_SERVICE } from './notification-gateway.constants';
               configService.get<string>('RABBITMQ_URL') ||
                 'amqp://user:password@localhost:5672',
             ],
-            queue: 'gateway1_queue',
+            queue: 'notifications_queue',
             queueOptions: {
               durable: true,
             },
