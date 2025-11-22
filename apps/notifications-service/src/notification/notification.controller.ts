@@ -3,7 +3,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Controller } from '@nestjs/common';
 import { NotificationService } from './notification.service';
-import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import {
+  Ctx,
+  EventPattern,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 import { PinoLogger } from 'nestjs-pino';
 import {
   CommentCreatedEventDto,
@@ -108,14 +114,8 @@ export class NotificationController {
     }
   }
 
-  @EventPattern('notify.find')
-  async handleFindNotUnread(
-    @Payload() userId: string,
-    @Ctx() context: RmqContext,
-  ) {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-    channel.ack(originalMsg);
+  @MessagePattern({ cmd: 'notify_find' })
+  async handleFindNotUnread(@Payload() userId: string) {
     return await this.notificationService.findStatusUnread(userId);
   }
 

@@ -42,7 +42,7 @@ export class NotificationService {
       `Esse é o UserID: ${userId} esse é o event: ${event} esse é o payload: ${payload.message}`,
     );
 
-    await this.postNotifications({
+    const save = await this.postNotifications({
       payload,
       status: NotificationStatus.UNREAD,
       type: type,
@@ -50,7 +50,13 @@ export class NotificationService {
       taskId,
       commentId,
     });
-    this.gatewayClient.emit('internal:notify', { userId, event, payload });
+
+    this.gatewayClient.emit('internal:notify', {
+      userId,
+      event,
+      payload,
+      id: save.id,
+    });
   }
 
   async postNotifications(data: CreateNotificationDto) {
