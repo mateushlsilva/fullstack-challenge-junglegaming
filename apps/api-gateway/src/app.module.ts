@@ -6,6 +6,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { ConfigModule } from '@nestjs/config';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationModule } from './notification/notification.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { NotificationModule } from './notification/notification.module';
     TasksModule,
     CommentsModule,
     NotificationModule,
+    UsersModule,
   ],
 })
 export class AppModule {}

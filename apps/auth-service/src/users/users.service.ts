@@ -16,8 +16,20 @@ export class UsersService {
     this.logger.setContext(UsersService.name);
   }
 
-  async findAll(): Promise<User[]> {
-    return this.repository.find();
+  async findQuery(page: number, size: number) {
+    const skip = (page - 1) * size;
+
+    const [users, total] = await this.repository.findAndCount({
+      skip,
+      take: size,
+    });
+
+    return {
+      page,
+      size,
+      total,
+      data: users,
+    };
   }
 
   async login(data: LoginUserDTO) {
