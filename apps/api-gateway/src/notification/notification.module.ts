@@ -5,6 +5,7 @@ import { NotificationController } from './notification.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NOTIFICATION_GATEWAY_SERVICE } from './notification-gateway.constants';
+import { AuthCommonModule } from '@app/common';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { NOTIFICATION_GATEWAY_SERVICE } from './notification-gateway.constants';
         inject: [ConfigService],
       },
     ]),
+    AuthCommonModule,
   ],
   providers: [NotificationService, WebSocketNotification],
   exports: [NotificationService],

@@ -10,7 +10,9 @@ import {
 import { PinoLogger } from 'nestjs-pino';
 import { NotificationService } from './notification.service';
 import { forwardRef, Inject } from '@nestjs/common';
+import { WsAuthService } from '@app/common';
 
+//@UseGuards(WsAuthGuard)
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -25,23 +27,19 @@ export class WebSocketNotification
     private readonly logger: PinoLogger,
     @Inject(forwardRef(() => NotificationService))
     private readonly notificationService: NotificationService,
+    private readonly wsAuthService: WsAuthService,
   ) {
     this.logger.setContext(WebSocket.name);
   }
 
-  handleConnection(client: Socket) {
-    // Extrai o header. O tipo é: string | string[] | undefined
-    const rawUserId = client.handshake.headers['x-user-id'];
+  async handleConnection(client: Socket) {
+    const userId = await this.wsAuthService.authenticateClient(client);
 
-    let userId: string | undefined;
-
-    // Normaliza o valor: se for array, pega o primeiro; se for string, mantém; se for undefined, mantém.
-    if (Array.isArray(rawUserId)) {
-      userId = rawUserId[0];
-    } else {
-      userId = rawUserId;
+    if (!userId) {
+      this.logger.warn(`Cliente sem token. Desconectando: ${client.id}`);
+      client.disconnect(true);
+      return;
     }
-
     if (userId) {
       client.join(userId);
       this.logger.info(
@@ -52,6 +50,7 @@ export class WebSocketNotification
       this.logger.warn(
         `Client sem 'x-user-id' header. Conexão limitada: ${client.id}.`,
       );
+      client.disconnect(true);
     }
   }
   handleDisconnect(client: Socket) {
