@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PriorityEnum, StatusEnum } from '@app/common';
+import { PriorityEnum, StatusEnum } from '../../enums';
 
 export const createTaskSchema = z.object({
   taskTitle: z.string().min(3).max(100),

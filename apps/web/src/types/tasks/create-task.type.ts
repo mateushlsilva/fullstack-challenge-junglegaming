@@ -1,4 +1,4 @@
-import { StatusEnum, PriorityEnum } from '@app/common';
+import { StatusEnum, PriorityEnum } from '../../enums';
 
 export type CreateTaskType = {
     id: number,

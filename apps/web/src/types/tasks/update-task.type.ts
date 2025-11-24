@@ -1,4 +1,4 @@
-import { PriorityEnum, StatusEnum } from '@app/common';
+import { PriorityEnum, StatusEnum } from '../../enums';
 
 type Assignees = {
     id: number,

@@ -6,5 +6,5 @@ export type RegisterType = {
         userName: string
     },
     access_token: string,
-    refresh_Token: string
+    refresh_token: string
 }
