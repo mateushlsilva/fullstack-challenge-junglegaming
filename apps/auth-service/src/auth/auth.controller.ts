@@ -31,7 +31,7 @@ export class AuthController {
       message: 'Usuário criado com sucesso',
       user: newUser.user,
       access_token: newUser.access_token,
-      refresh_Token: newUser.refresh_Token,
+      refresh_token: newUser.refresh_Token,
     };
   }
 

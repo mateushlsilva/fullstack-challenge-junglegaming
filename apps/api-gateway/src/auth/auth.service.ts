@@ -17,6 +17,16 @@ interface Error {
   message: string;
 }
 
+interface Login extends LoginUserDTO {
+  refresh_token: string;
+  access_token: string;
+}
+
+interface Register extends CreateUserDto {
+  refresh_token: string;
+  access_token: string;
+}
+
 @Injectable()
 export class AuthService implements OnModuleInit {
   constructor(@Inject(AUTH_SERVICE) private readonly authClient: ClientProxy) {}
@@ -31,7 +41,7 @@ export class AuthService implements OnModuleInit {
         this.authClient.send<CreateUserDto>({ cmd: 'create_user' }, data),
       );
 
-      return res;
+      return res as Register;
     } catch (error: unknown) {
       const err: Error = error as Error;
       console.error(err);
@@ -51,7 +61,7 @@ export class AuthService implements OnModuleInit {
         this.authClient.send<LoginUserDTO>({ cmd: 'login_user' }, data),
       );
 
-      return res;
+      return res as Login;
     } catch (error: unknown) {
       const err: Error = error as Error;
       console.error(err);

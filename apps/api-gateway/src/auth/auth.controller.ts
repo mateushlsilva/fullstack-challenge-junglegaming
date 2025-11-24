@@ -1,7 +1,16 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDTO, refreshTokenDto } from '@app/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import type { Response, Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -18,8 +27,20 @@ export class AuthController {
     status: 409,
     description: 'Email já está sendo usado.',
   })
-  async register(@Body() data: CreateUserDto) {
-    return await this.authService.register(data);
+  async register(
+    @Body() data: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.register(data);
+
+    res.cookie('refresh_token', result.refresh_token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    return { ...result };
   }
 
   @Post('/login')
@@ -30,8 +51,20 @@ export class AuthController {
     status: 400,
     description: 'Dados de entrada inválidos (validação DTO).',
   })
-  async login(@Body() data: LoginUserDTO) {
-    return await this.authService.login(data);
+  async login(
+    @Body() data: LoginUserDTO,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.login(data);
+
+    res.cookie('refresh_token', result.refresh_token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 dias
+    });
+
+    return { access_token: result.access_token };
   }
 
   @Post('/refresh')
@@ -46,7 +79,7 @@ export class AuthController {
     description: 'Novo access token gerado com sucesso.',
     schema: {
       example: {
-        access_Token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
       },
     },
   })
@@ -58,7 +91,9 @@ export class AuthController {
     status: 401,
     description: 'Refresh token expirado ou não autorizado.',
   })
-  async refresh(@Body() data: refreshTokenDto) {
-    return await this.authService.refresh(data);
+  async refresh(@Req() req: Request) {
+    const refreshToken = req.cookies['refresh_token'] as string;
+
+    return this.authService.refresh({ refresh_token: refreshToken });
   }
 }

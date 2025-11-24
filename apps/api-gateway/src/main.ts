@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AllExceptionsFilter, RRpcValidationFilter } from '@app/common';
 import { Transport } from '@nestjs/microservices';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const rabbitMqUrl =
@@ -25,7 +26,12 @@ async function bootstrap() {
     },
   });
 
-  app.enableCors();
+  app.use(cookieParser());
+  app.enableCors({
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
   app.useGlobalPipes(new ValidationPipe());
   app.enableShutdownHooks();
   await app.startAllMicroservices();
