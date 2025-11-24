@@ -2,7 +2,7 @@ import { api } from "../api";
 import type { CreateTaskDto } from "../schemas";
 import type { CreateTaskType, GetQueryType, UpdateTaskType } from '../types';
 
-class Task {
+class TaskService {
     async getById(id: number): Promise<CreateTaskType> {
         try {
             const { data } = await api.get(`/api/tasks/${id}`);
@@ -58,4 +58,4 @@ class Task {
     }
 }
 
-export default new Task();
+export default new TaskService();
