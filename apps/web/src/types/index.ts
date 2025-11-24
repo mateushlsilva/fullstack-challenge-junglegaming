@@ -1,9 +1,21 @@
 import type { CreateTaskType } from "./tasks/create-task.type";
 import type { GetQueryType } from './tasks/get-query.type';
 import type { UpdateTaskType } from "./tasks/update-task.type";
+import type { CreateCommentsType } from './comments/create-comments.type';
+import type { GetQueryCommentsType } from "./comments/get-query.type";
+import type { GetQueryUsersType } from "./users/get-query.type";
+import type { LoginType } from "./auth/login.type";
+import type { RegisterType } from "./auth/register.type";
+import type { RefreshType } from "./auth/refresh.type";
 
 export type {
     CreateTaskType,
     GetQueryType,
-    UpdateTaskType
+    UpdateTaskType,
+    CreateCommentsType,
+    GetQueryCommentsType,
+    GetQueryUsersType,
+    LoginType,
+    RegisterType,
+    RefreshType,
 }
