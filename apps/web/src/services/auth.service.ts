@@ -1,5 +1,5 @@
 import { api } from "../api";
-import type { LoginDto, RefreshDto, RegisterDto } from "../schemas";
+import type { LoginDto, RegisterDto } from "../schemas";
 import type { LoginType, RefreshType, RegisterType } from "../types";
 
 class AuthService {
@@ -23,9 +23,9 @@ class AuthService {
         }
     }
 
-    async refresh(body: RefreshDto): Promise<RefreshType> {
+    async refresh(): Promise<RefreshType> {
         try {
-            const { data } = await api.post(`/api/auth/refresh`, body);
+            const { data } = await api.post(`/api/auth/refresh`);
             return data
         }catch(err){
             console.error(err);

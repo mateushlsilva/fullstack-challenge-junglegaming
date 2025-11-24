@@ -7,6 +7,7 @@ import type { GetQueryUsersType } from "./users/get-query.type";
 import type { LoginType } from "./auth/login.type";
 import type { RegisterType } from "./auth/register.type";
 import type { RefreshType } from "./auth/refresh.type";
+import type { AuthState } from "./auth/auth-state.type";
 
 export type {
     CreateTaskType,
@@ -18,4 +19,5 @@ export type {
     LoginType,
     RegisterType,
     RefreshType,
+    AuthState,
 }
