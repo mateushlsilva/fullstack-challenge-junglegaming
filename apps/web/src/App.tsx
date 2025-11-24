@@ -1,33 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { useLogin } from './hooks'
+import { loginSchemas, type LoginDto } from './schemas';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const login = useLogin();
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginDto>({
+    resolver: zodResolver(loginSchemas)
+  });
+
+  const onSubmit = (data: LoginDto) => {
+    login.mutate(data);
+  };
+
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <h1 style={{ color: 'black' }}>OIIIIIIIIIIIIIIIIIIIIIIIIi</h1>
+      <form onSubmit={handleSubmit(onSubmit)}>
+      <input placeholder="E-mail" {...register("userEmail")} />
+      {errors.userEmail && <p>{errors.userEmail.message}</p>}
+
+      <input type="password" placeholder="Senha" {...register("userPassword")} />
+      {errors.userPassword && <p>{errors.userPassword.message}</p>}
+
+      <button type="submit" disabled={login.isPending}>
+        Entrar
+      </button>
+
+      {login.isError && <p>Erro ao fazer login</p>}
+    </form>
     </>
   )
 }
