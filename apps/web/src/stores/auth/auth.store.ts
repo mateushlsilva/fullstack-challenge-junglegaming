@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import type { AuthState } from "../../types";
+import { persist } from 'zustand/middleware';
 
+export const useAuthStore = create<AuthState>()(
 
-export const useAuthStore = create<AuthState>((set) => ({
+persist( (set) => ({
   token: null,
   user: null,
   isAuthenticated: false,
@@ -20,4 +22,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       user: null,
       isAuthenticated: false,
     })),
-}));
+  }),
+  {
+    name: "auth-storage",
+  }
+));
