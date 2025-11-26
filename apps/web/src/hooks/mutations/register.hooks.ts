@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { AuthService } from "../services";
-import { useAuthStore } from "../stores";
-import type { RegisterDto } from "../schemas";
+import { AuthService } from "../../services";
+import { useAuthStore } from "../../stores";
+import type { RegisterDto } from "../../schemas";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner"
 
