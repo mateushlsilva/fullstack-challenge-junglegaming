@@ -27,9 +27,16 @@ function mapTaskToKanban(taskFromAPI: GetTaskAssigneesAndCommentsType) {
 export const useTaskStore = create<TaskStore>((set) => ({
   tasks: [],
   addPage: (newTasks) =>
-    set((state) => ({
-      tasks: [...state.tasks, ...newTasks.map(mapTaskToKanban)]
-    })),
+    set((state) => {
+      const mapped = newTasks.map(mapTaskToKanban);
+
+      // cria um mapa para evitar duplicados
+      const existingIds = new Set(state.tasks.map(t => t.id));
+
+      const filtered = mapped.filter(task => !existingIds.has(task.id));
+
+      return { tasks: [...state.tasks, ...filtered] };
+  }),
   clear: () => set({ tasks: [] }),
   updateTask: (id, data) =>
     set((state) => ({
