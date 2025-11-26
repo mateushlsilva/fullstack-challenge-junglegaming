@@ -30,7 +30,6 @@ export const useTaskStore = create<TaskStore>((set) => ({
     set((state) => {
       const mapped = newTasks.map(mapTaskToKanban);
 
-      // cria um mapa para evitar duplicados
       const existingIds = new Set(state.tasks.map(t => t.id));
 
       const filtered = mapped.filter(task => !existingIds.has(task.id));
