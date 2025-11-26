@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { KanbanCard } from "../ui/shadcn-io/kanban";
 import type { TaskToKanban } from "@/types";
-import type { StatusEnum } from "@/enums";
+import { PriorityEnum, type StatusEnum } from "@/enums";
 
 type ClicKanbanCard = {
     feature: TaskToKanban;
@@ -36,6 +36,13 @@ export function ClickableKanbanCard({ feature, columnName, formatted }: ClicKanb
     console.log("Card clicado:", feature)
   );
 
+  const priorityColor = [
+    { id: PriorityEnum.LOW, name: PriorityEnum.LOW, color: '#48BB78' },
+    { id: PriorityEnum.MEDIUM, name: PriorityEnum.MEDIUM, color: '#3182CE' },
+    { id: PriorityEnum.HIGH, name: PriorityEnum.HIGH, color: '#F6AD55' },
+    { id: PriorityEnum.URGENT, name: PriorityEnum.URGENT, color: '#E53E3E' },
+  ]
+
   return (
     <KanbanCard
       column={columnName}
@@ -51,6 +58,12 @@ export function ClickableKanbanCard({ feature, columnName, formatted }: ClicKanb
       >
         <div className="flex items-start justify-between gap-2">
           <p className="m-0 flex-1 font-medium text-sm text-white">{feature.name}</p>
+          {feature.priority && (
+            <div
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: priorityColor.find((e) => e.id === feature.priority)?.color }}
+              />
+          )}
         </div>
         <p className="m-0 text-muted-foreground text-xs text-white ">
           Prazo: {formatted(feature.dueDate || null)}
