@@ -1,4 +1,4 @@
-type UserTypeQuery = {
+export type UserTypeQuery = {
     id: number,
     userEmail: string,
     userName: string,
