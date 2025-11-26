@@ -13,7 +13,7 @@ type Comments = {
     created_at: Date
 }
 
-type GetTaskAssigneesAndCommentsType = {
+export type GetTaskAssigneesAndCommentsType = {
     id: number,
     taskTitle: string,
     taskDescription: string,
@@ -31,4 +31,16 @@ export type GetQueryType = {
     size: number,
     total: number,
     data: GetTaskAssigneesAndCommentsType[],
+}
+
+
+export type TaskToKanban = {
+    id: string,
+    name: string,
+    description: string,
+    dueDate: Date,
+    priority: PriorityEnum,
+    column: StatusEnum,
+    comment: Comments[],
+    assignees: Assignees[]
 }
