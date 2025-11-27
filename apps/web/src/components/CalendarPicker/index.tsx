@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function CalendarPicker({ value, onChange }: { value?: Date; onChange: (date: Date) => void }) {
+export function CalendarPicker({ value, onChange }: { value?: Date; onChange?: (date: Date) => void }) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -29,7 +29,7 @@ export function CalendarPicker({ value, onChange }: { value?: Date; onChange: (d
           mode="single"
           selected={value}
           onSelect={(date: Date) => {
-            onChange(date);
+            onChange!(date);
             setOpen(false);
           }}
           className="rounded-md border border-gray-700 bg-[#111] text-white"

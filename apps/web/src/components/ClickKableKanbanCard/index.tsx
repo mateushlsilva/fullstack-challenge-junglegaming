@@ -6,7 +6,8 @@ import { PriorityEnum, type StatusEnum } from "@/enums";
 type ClicKanbanCard = {
     feature: TaskToKanban;
     columnName: StatusEnum;
-    formatted: (date: string | Date | null) => string
+    formatted: (date: string | Date | null) => string;
+    onCardClick: (id: string) => void;
 }
 
 function useClickWithoutDrag(onClick: () => void) {
@@ -31,10 +32,14 @@ function useClickWithoutDrag(onClick: () => void) {
   return { onPointerDown, onPointerUp };
 }
 
-export function ClickableKanbanCard({ feature, columnName, formatted }: ClicKanbanCard) {
-  const { onPointerDown, onPointerUp } = useClickWithoutDrag(() =>
+
+
+export function ClickableKanbanCard({ feature, columnName, formatted, onCardClick }: ClicKanbanCard) {
+
+  const { onPointerDown, onPointerUp } = useClickWithoutDrag(() => {
     console.log("Card clicado:", feature)
-  );
+    onCardClick(feature.id)
+  });
 
   const priorityColor = [
     { id: PriorityEnum.LOW, name: PriorityEnum.LOW, color: '#48BB78' },
@@ -44,6 +49,7 @@ export function ClickableKanbanCard({ feature, columnName, formatted }: ClicKanb
   ]
 
   return (
+    <>
     <KanbanCard
       column={columnName}
       id={feature.id}
@@ -70,5 +76,6 @@ export function ClickableKanbanCard({ feature, columnName, formatted }: ClicKanb
         </p>
       </div>
     </KanbanCard>
+    </>
   );
 }

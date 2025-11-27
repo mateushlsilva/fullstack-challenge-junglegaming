@@ -6,10 +6,11 @@ import { useState } from "react";
 import { useKanbanStatus } from '@/hooks';
 
 type TaskKanbanProps = {
-    tasks: TaskToKanban[]
+    tasks: TaskToKanban[];
+    onCardClick: (id: string) => void
 }
 
-export function TaskKanban({ tasks }: TaskKanbanProps) {
+export function TaskKanban({ tasks, onCardClick }: TaskKanbanProps) {
     const [features, setFeatures] = useState(tasks);
     const kanbanStatus = useKanbanStatus();
 
@@ -68,6 +69,7 @@ export function TaskKanban({ tasks }: TaskKanbanProps) {
                     feature={feature as TaskToKanban}
                     columnName={column.name}
                     formatted={formatted}
+                    onCardClick={onCardClick}
                     />
                 )}
                 </KanbanCards>

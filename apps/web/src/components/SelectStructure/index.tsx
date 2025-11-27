@@ -10,9 +10,9 @@ type SelectStructureProps = {
     placeholder: string;
     onEndReached?: () => void;
     onChange?: (v: string) => void; 
-} & React.ComponentProps<'select'>;
+} & React.ComponentPropsWithoutRef<typeof Select>;
 
-export function SelectStructure({ select, placeholder, onEndReached, onChange }: SelectStructureProps) {
+export function SelectStructure({ select, placeholder, onEndReached, onChange, ...props }: SelectStructureProps) {
     
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const target = e.currentTarget;
@@ -26,7 +26,7 @@ export function SelectStructure({ select, placeholder, onEndReached, onChange }:
     };
     
     return (
-        <Select onValueChange={onChange}>
+        <Select onValueChange={onChange} {...props}>
             <SelectTrigger className="w-[180px] bg-[#1A1A1A] border-gray-700 focus:ring-indigo-500">
             <SelectValue placeholder={placeholder} />
             </SelectTrigger>
