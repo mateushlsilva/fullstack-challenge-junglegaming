@@ -3,6 +3,7 @@ import { useRegister } from "./mutations/register.hooks";
 import { useTaskQuery } from "./queries/tasks-getquery.hook";
 import { useUserQuery } from "./queries/users-getquery.hook";
 import { useTaskCreate } from "./mutations/task-create.hooks";
+import { useAuthWebSocket } from "./websocket/web-socket.hook";
 
 export {
     useLogin,
@@ -10,4 +11,5 @@ export {
     useTaskQuery,
     useUserQuery,
     useTaskCreate,
+    useAuthWebSocket,
 }
