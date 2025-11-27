@@ -59,6 +59,28 @@ export function useAuthWebSocket() {
 
     socket.on("task:updated", (data: Payload) => {
         console.log("Notificação recebida:", data);
+        const { assigned_user_ids, id, taskDescription, taskDueDate, taskPriority, taskStatus, taskTitle } = data.data as UpdateTaskEvent;
+
+        const currentTask = useTaskStore.getState().tasks.find(t => t.id === id.toString());
+        if (!currentTask) return;
+
+
+        const existingAssignees = currentTask.assignees.filter(a =>
+            assigned_user_ids.includes(Number(a.user_id))
+        );
+
+
+        const newAssignees = assigned_user_ids
+            .filter(userId => !existingAssignees.some(a => Number(a.user_id) === userId))
+            .map((userId, index) => ({
+                user_id: userId.toString(),
+                assigned_at: new Date(),
+                id: existingAssignees.length + index + 1,
+            }));
+
+        const updatedAssignees = [...existingAssignees, ...newAssignees];
+
+        updateTask(id.toString(), { name: taskTitle, description: taskDescription, dueDate: taskDueDate, column: taskStatus, priority: taskPriority, assignees: updatedAssignees })
         socket.emit("notification:received", data.id );
     });
 
