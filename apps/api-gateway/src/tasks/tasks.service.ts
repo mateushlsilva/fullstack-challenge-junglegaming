@@ -25,12 +25,12 @@ export class TasksService implements OnModuleInit {
     await this.tasksClient.connect();
   }
 
-  async query(page: number, size: number) {
+  async query(page: number, size: number, userId: number) {
     try {
       const res = await lastValueFrom(
         this.tasksClient.send<CreateTaskDto>(
           { cmd: 'page_task' },
-          { page, size },
+          { page, size, userId },
         ),
       );
 
@@ -48,10 +48,13 @@ export class TasksService implements OnModuleInit {
     }
   }
 
-  async getById(id: number) {
+  async getById(id: number, userId: number) {
     try {
       const res = await lastValueFrom(
-        this.tasksClient.send<CreateTaskDto>({ cmd: 'getid_task' }, { id }),
+        this.tasksClient.send<CreateTaskDto>(
+          { cmd: 'getid_task' },
+          { id, userId },
+        ),
       );
 
       return res;
@@ -121,10 +124,13 @@ export class TasksService implements OnModuleInit {
     }
   }
 
-  async delete(id: number) {
+  async delete(id: number, userId: number) {
     try {
       await lastValueFrom(
-        this.tasksClient.send<CreateTaskDto>({ cmd: 'delete_task' }, { id }),
+        this.tasksClient.send<CreateTaskDto>(
+          { cmd: 'delete_task' },
+          { id, userId },
+        ),
       );
 
       return;

@@ -23,8 +23,11 @@ export class TaskService {
     this.logger.setContext(TaskService.name);
   }
 
-  async findById(id: number) {
-    const find = await this.taskRepository.findOneBy({ id });
+  async findById(id: number, creator_id: number) {
+    const find = await this.taskRepository.findOneBy({
+      id,
+      assignees: { user_id: creator_id },
+    });
     if (!find) {
       throw new RpcException({
         code: 404,
@@ -34,7 +37,7 @@ export class TaskService {
     return find;
   }
 
-  async findAll(page: number, size: number) {
+  async findAll(page: number, size: number, creator_id: number) {
     const skip = (page - 1) * size;
 
     const [tasks, total] = await this.taskRepository.findAndCount({
@@ -42,6 +45,7 @@ export class TaskService {
       take: size,
       order: { created_at: 'DESC' },
       relations: { assignees: true, comments: true },
+      where: { assignees: { user_id: creator_id } },
     });
 
     return {
@@ -126,8 +130,18 @@ export class TaskService {
       });
   }
 
-  async delete(id: number) {
+  async delete(id: number, creator_id: number) {
     this.logger.info(`[TaskService] Tentativa de deletar Task ID: ${id}`);
+    const find = await this.taskRepository.findOneBy({
+      id,
+      assignees: { user_id: creator_id },
+    });
+    if (!find) {
+      throw new RpcException({
+        code: 404,
+        message: 'Task não encontrada',
+      });
+    }
     const del = await this.taskRepository.delete({ id });
     this.logger.info(
       `[TypeORM Result] Linhas Afetadas (affected): ${del.affected}`,

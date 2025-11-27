@@ -53,8 +53,12 @@ export class TasksController {
     status: 404,
     description: 'Task não encontrada.',
   })
-  async get(@Param('id', ParseIntPipe) id: number) {
-    return await this.taskService.getById(id);
+  async get(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user.sub;
+    return await this.taskService.getById(id, Number(userId));
   }
 
   @UseGuards(AuthGuard)
@@ -69,8 +73,10 @@ export class TasksController {
   async findQuery(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('size', ParseIntPipe) size: number = 10,
+    @Req() req: AuthenticatedRequest,
   ) {
-    return await this.taskService.query(page, size);
+    const userId = req.user.sub;
+    return await this.taskService.query(page, size, Number(userId));
   }
 
   @UseGuards(AuthGuard)
@@ -87,8 +93,12 @@ export class TasksController {
     status: 404,
     description: 'Task não encontrada.',
   })
-  async deleteById(@Param('id', ParseIntPipe) id: number) {
-    return await this.taskService.delete(id);
+  async deleteById(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user.sub;
+    return await this.taskService.delete(id, Number(userId));
   }
 
   @UseGuards(AuthGuard)

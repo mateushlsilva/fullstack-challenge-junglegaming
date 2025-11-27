@@ -41,8 +41,11 @@ export class TaskController {
       whitelist: true,
     }),
   )
-  async get(@Payload('id', ParseIntPipe) id: number) {
-    return await this.taskService.findById(id);
+  async get(
+    @Payload('id', ParseIntPipe) id: number,
+    @Payload('userId', ParseIntPipe) userId: number,
+  ) {
+    return await this.taskService.findById(id, userId);
   }
 
   @MessagePattern({ cmd: 'page_task' })
@@ -55,8 +58,9 @@ export class TaskController {
   async findAll(
     @Payload('page', ParseIntPipe) page: number = 1,
     @Payload('size', ParseIntPipe) size: number = 10,
+    @Payload('userId', ParseIntPipe) userId: number,
   ) {
-    return await this.taskService.findAll(page, size);
+    return await this.taskService.findAll(page, size, userId);
   }
 
   @MessagePattern({ cmd: 'delete_task' })
@@ -66,9 +70,12 @@ export class TaskController {
       whitelist: true,
     }),
   )
-  async delete(@Payload('id', ParseIntPipe) id: number) {
+  async delete(
+    @Payload('id', ParseIntPipe) id: number,
+    @Payload('userId', ParseIntPipe) userId: number,
+  ) {
     this.logger.info(`[TaskController] Tentativa de deletar Task ID: ${id}`);
-    return await this.taskService.delete(id);
+    return await this.taskService.delete(id, userId);
   }
 
   @MessagePattern({ cmd: 'put_task' })
