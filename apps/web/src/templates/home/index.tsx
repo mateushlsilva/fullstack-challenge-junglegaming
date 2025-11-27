@@ -3,16 +3,21 @@ import { Separator } from "@/components/ui/separator"
 import { PriorityEnum } from "@/enums"
 import { useAuthWebSocket } from "@/hooks"
 import { useTaskStore } from "@/stores"
+import { useEffect, useState } from "react"
 
 type HomeTemplateProps = {
     children: React.ReactNode
 } & React.ComponentProps<'div'>
 
 export function HomeTemplate({ children }: HomeTemplateProps) {
-    const filter = useTaskStore((e) => e.filter)
+    const filterSearch = useTaskStore((e) => e.filter)
+    const [priority, setPriority] = useState<PriorityEnum | null>(null)
+    const [search, setSearch] = useState<string | null>(null)
     useAuthWebSocket()
 
-    
+    useEffect(() => {
+        filterSearch(priority, search)
+    }, [priority, search])
 
     return (
         <>
@@ -28,7 +33,7 @@ export function HomeTemplate({ children }: HomeTemplateProps) {
                         </div>
                         <div className="flex items-center space-x-4">
                             
-                            <Search/>
+                            <Search onChange={(value) => setSearch(value.target.value)}/>
                             <SelectStructure 
                                 placeholder='Selecione a Prioridade' 
                                 select={[
@@ -38,7 +43,7 @@ export function HomeTemplate({ children }: HomeTemplateProps) {
                                     { id: PriorityEnum.HIGH, label: PriorityEnum.HIGH }, 
                                     { id: PriorityEnum.URGENT, label: PriorityEnum.URGENT }]}
                                 onChange={(value) => {
-                                    filter(value === 'Mostrar tudo' ? null : value as PriorityEnum)
+                                    setPriority(value === 'Mostrar tudo' ? null : value as PriorityEnum)
                                 }}
                             />
                         </div>

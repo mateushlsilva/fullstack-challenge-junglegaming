@@ -9,7 +9,7 @@ type TaskStore = {
   clear: () => void
   updateTask: (id: string, data: Partial<TaskToKanban>) => void
   removeTask: (id: string) => void
-  filter: (priority: PriorityEnum | null) => void
+  filter: (priority: PriorityEnum | null, searchTerm: string | null) => void
 }
 
 
@@ -53,8 +53,13 @@ export const useTaskStore = create<TaskStore>((set) => ({
       tasks: state.tasks.filter((t) => t.id !== id),
     })),
 
- filter: (priority) => 
-    set((state) => ({
-      tasks: priority ? state.filteredTasks.filter(t => t.priority === priority) : state.filteredTasks
-    })),
+  filter: (priority, searchTerm) =>
+    set((state) => {
+      const prioritySearch = priority ? state.filteredTasks.filter(t => t.priority === priority) : state.filteredTasks;
+      const search =  searchTerm ? prioritySearch.filter((t) =>
+            t.name.toLowerCase().includes(searchTerm.toLowerCase())
+          ) : prioritySearch
+        return { tasks: search };
+    }),
+
 }))
