@@ -30,7 +30,6 @@ function Home() {
     const { isPending  } = useTaskQuery({page: page, size: 20})
     if (isPending) console.log("Ta pegando")
     const tasks = useTaskStore((e) => e.tasks)
-    
     console.log(page);
     
     const isBottom = useIsBottom(200);

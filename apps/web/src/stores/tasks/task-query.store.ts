@@ -4,10 +4,12 @@ import { PriorityEnum, StatusEnum } from "@/enums";
 
 type TaskStore = {
   tasks: TaskToKanban[]
+  filteredTasks: TaskToKanban[],
   addPage: (newTasks: GetTaskAssigneesAndCommentsType[]) => void
   clear: () => void
   updateTask: (id: string, data: Partial<TaskToKanban>) => void
   removeTask: (id: string) => void
+  filter: (priority: PriorityEnum | null) => void
 }
 
 
@@ -26,6 +28,7 @@ function mapTaskToKanban(taskFromAPI: GetTaskAssigneesAndCommentsType) {
 
 export const useTaskStore = create<TaskStore>((set) => ({
   tasks: [],
+  filteredTasks: [],
   addPage: (newTasks) =>
     set((state) => {
       const mapped = newTasks.map(mapTaskToKanban);
@@ -34,17 +37,24 @@ export const useTaskStore = create<TaskStore>((set) => ({
 
       const filtered = mapped.filter(task => !existingIds.has(task.id));
 
-      return { tasks: [...state.tasks, ...filtered] };
+      return { tasks: [...state.tasks, ...filtered], filteredTasks: [...state.tasks, ...filtered] };
   }),
-  clear: () => set({ tasks: [] }),
+  clear: () => set({ filteredTasks: [], tasks: [] }),
+
   updateTask: (id, data) =>
     set((state) => ({
-      tasks: state.tasks.map((t) =>
-        t.id === id ? { ...t, ...data } : t
-      )
+      filteredTasks: state.filteredTasks.map((t) => t.id === id ? { ...t, ...data } : t),
+      tasks: state.tasks.map((t) => t.id === id ? { ...t, ...data } : t),
     })),
+
   removeTask: (id) =>
     set((state) => ({
-      tasks: state.tasks.filter((t) => t.id !== id)
+      filteredTasks: state.filteredTasks.filter((t) => t.id !== id),
+      tasks: state.tasks.filter((t) => t.id !== id),
+    })),
+
+ filter: (priority) => 
+    set((state) => ({
+      tasks: priority ? state.filteredTasks.filter(t => t.priority === priority) : state.filteredTasks
     })),
 }))

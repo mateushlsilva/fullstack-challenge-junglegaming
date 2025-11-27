@@ -1,12 +1,12 @@
 import { PriorityEnum, StatusEnum } from '../../enums';
 
-type Assignees = {
+export type Assignees = {
     id: number,
     user_id: string,
     assigned_at: Date,
 }
 
-type Comments = {
+export type Comments = {
     id: number,
     user_id: string,
     content: string,
