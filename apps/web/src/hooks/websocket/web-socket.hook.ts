@@ -15,6 +15,7 @@ export function useAuthWebSocket() {
 
     const token = useAuthStore((state) => state.token)
     const addTasks = useTaskStore((state) => state.addPage)
+    const updateTask = useTaskStore((state) => state.updateTask)
 
     useEffect(() => {
         if (!token) return;
@@ -64,6 +65,21 @@ export function useAuthWebSocket() {
     socket.on("comment:new", (data: Payload) => {
         console.log("Notificação recebida:", data);
         console.log("O id foi muito bem entrege olha ele: ", data.id);
+
+        const { task_id, user_id , id ,content } = data.data as CreateCommentEvent
+
+        updateTask(task_id.toString(), {
+            comment: [
+                ...useTaskStore.getState().tasks.find(t => t.id === task_id.toString())!.comment,
+                {
+                id,
+                content,
+                user_id: user_id.toString(),
+                created_at: new Date()
+                }
+            ]
+        })
+
         socket.emit("notification:received", data.id );
     });
 
