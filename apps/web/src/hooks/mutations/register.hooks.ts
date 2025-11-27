@@ -16,7 +16,7 @@ export const useRegister = () => {
     onSuccess: (data, { userEmail }) => {
       setAuth(data.access_token, { userEmail });
       toast.success('Usuário criado!')
-      navigate({ to: '/home' })
+      navigate({ to: '/' })
     },
 
     onError: (err) => {

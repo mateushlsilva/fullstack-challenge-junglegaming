@@ -15,7 +15,7 @@ export const useLogin = () => {
 
     onSuccess: (data, { userEmail }) => {
       setAuth(data.access_token, { userEmail });
-      navigate({ to: '/home' })
+      navigate({ to: '/' })
     },
 
     onError: (err) => {
