@@ -6,6 +6,9 @@ import { Search } from './Search';
 import { CreateTaskDialog } from "./CreateTaskDialog";
 import { SelectStructure } from "./SelectStructure";
 import { MultiSelect } from "./MultiSelect";
+import { TaskDialog } from "./TaskDialog";
+import { TaskComments } from "./TaskComments";
+import { SkeletonTaskDialog } from "./SkeletonTaskDialog";
 
 export {
     ClickableKanbanCard,
@@ -16,4 +19,7 @@ export {
     CreateTaskDialog,
     SelectStructure,
     MultiSelect,
+    TaskDialog,
+    TaskComments,
+    SkeletonTaskDialog,
 }
