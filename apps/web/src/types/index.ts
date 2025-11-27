@@ -1,5 +1,5 @@
 import type { CreateTaskType } from "./tasks/create-task.type";
-import type { GetQueryType, GetTaskAssigneesAndCommentsType, TaskToKanban } from './tasks/get-query.type';
+import type { GetQueryType, GetTaskAssigneesAndCommentsType, TaskToKanban, Assignees, Comments } from './tasks/get-query.type';
 import type { UpdateTaskType } from "./tasks/update-task.type";
 import type { CreateCommentsType } from './comments/create-comments.type';
 import type { GetQueryCommentsType } from "./comments/get-query.type";
@@ -13,6 +13,8 @@ export type {
     CreateTaskType,
     GetQueryType,
     GetTaskAssigneesAndCommentsType,
+    Assignees,
+    Comments,
     TaskToKanban,
     UpdateTaskType,
     CreateCommentsType,
