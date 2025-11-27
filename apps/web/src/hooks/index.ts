@@ -7,6 +7,8 @@ import { useAuthWebSocket } from "./websocket/web-socket.hook";
 import { useCommentCreate } from "./mutations/commests-create.hook";
 import { useTaskUpdate } from "./mutations/task-update.hooks";
 import { useKanbanStatus } from "./mutations/kanban-status.hooks";
+import { useCommentsQuery } from "./queries/commets-getquery.hook";
+import { useTaskGet } from "./queries/tasks-get.hook";
 
 export {
     useLogin,
@@ -18,4 +20,6 @@ export {
     useCommentCreate,
     useTaskUpdate,
     useKanbanStatus,
+    useCommentsQuery,
+    useTaskGet,
 }
