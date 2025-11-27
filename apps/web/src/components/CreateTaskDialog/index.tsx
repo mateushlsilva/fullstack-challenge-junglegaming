@@ -29,7 +29,7 @@ import { Field, FieldContent, FieldError, FieldLabel } from '../ui/field';
 export function CreateTaskDialog() {
   const createTask = useTaskCreate();
 
-  const { register, setValue, handleSubmit, formState: { errors } } = useForm<CreateTaskDto>({
+  const { register, setValue, reset, handleSubmit, formState: { errors } } = useForm<CreateTaskDto>({
     resolver: zodResolver(createTaskSchema)
   })
 
@@ -46,10 +46,11 @@ export function CreateTaskDialog() {
 
 
   const onSubmit = (data: CreateTaskDto) => {
-    console.log("Entrou aqui");
-    
     createTask.mutate(data);
     console.log("Nova Tarefa Criada!");
+    reset()
+    setSelectedUsers([])
+    setDate(new Date())
     setIsDialogOpen(false);
   }
 

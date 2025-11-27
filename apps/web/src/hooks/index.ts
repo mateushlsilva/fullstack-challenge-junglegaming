@@ -9,6 +9,7 @@ import { useTaskUpdate } from "./mutations/task-update.hooks";
 import { useKanbanStatus } from "./mutations/kanban-status.hooks";
 import { useCommentsQuery } from "./queries/commets-getquery.hook";
 import { useTaskGet } from "./queries/tasks-get.hook";
+import { useTaskDelete } from "./mutations/task-delete.hooks";
 
 export {
     useLogin,
@@ -22,4 +23,5 @@ export {
     useKanbanStatus,
     useCommentsQuery,
     useTaskGet,
+    useTaskDelete,
 }

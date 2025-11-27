@@ -6,7 +6,6 @@ import {
     DialogTitle,
     DialogTrigger,
     DialogFooter,
-    DialogClose,
 } from '@/components/ui/dialog';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -14,13 +13,23 @@ import { useEffect, useState } from 'react';
 import { Textarea } from '../ui/textarea';
 import { SelectStructure } from '../SelectStructure';
 import { PriorityEnum, StatusEnum } from '@/enums';
-import { useCommentCreate, useCommentsQuery, useTaskGet } from '@/hooks';
+import { useCommentCreate, useCommentsQuery, useTaskDelete, useTaskGet } from '@/hooks';
 import { useTaskStore } from '@/stores';
 import { CalendarPicker } from '../CalendarPicker';
 import { Field, FieldContent, FieldLabel } from '../ui/field';
 import { TaskComments } from '../TaskComments';
 import { SkeletonTaskDialog } from '../SkeletonTaskDialog';
-
+import { useNavigate } from '@tanstack/react-router';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 type TaskDialogProps = {
     id: string;
@@ -30,10 +39,30 @@ type TaskDialogProps = {
 export function TaskDialog({ id, onClose }: TaskDialogProps) {
     const { data, isPending } = useTaskGet(Number(id));
     const taskComments = useTaskStore((state) => state.tasks.find(t => t.id === id)?.comment)
+    const remove = useTaskStore((state) => state.removeTask)
     const [page, setPage] = useState(1)
     useCommentsQuery({ taskId: Number(id), page, size: 20 })
     const comment = useCommentCreate()
+    const navigate = useNavigate();
+    const deletar = useTaskDelete()
 
+
+
+
+    const handleUpdate = () => {
+        navigate({ to: `/tasks/update/${id}` });
+    }
+
+    const handleDelete = () => {
+
+        deletar.mutate(Number(id), {
+            onSuccess: () => {
+                remove(id)
+                onClose()
+            }
+        })
+
+    }
 
     useEffect(() => {
         return () => {
@@ -152,14 +181,35 @@ export function TaskDialog({ id, onClose }: TaskDialogProps) {
                             }}
                         />
 
-                        <DialogFooter className="mt-4">
-                            <DialogClose asChild>
-                                <Button type="button" variant="outline" className="bg-transparent border-gray-700 text-white hover:bg-gray-800">
-                                    Cancelar
-                                </Button>
-                            </DialogClose>
-                            <Button form='cadastro-task' type="submit" className="bg-green-600 hover:bg-green-700 text-white">
-                                Salvar Tarefa
+                        <DialogFooter className="mt-4 flex justify-end gap-2">
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="bg-red-800 border-red-700 text-white hover:bg-red-700"
+                                    >
+                                        Deletar
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className='bg-[#1A1A1A] border-gray-700'>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle className='text-white'>Tem certeza que deseja deletar esta tarefa?</AlertDialogTitle>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel className='text-[#1A1A1A]'>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+
+
+                            <Button
+                                type="button"
+                                className="bg-blue-800 hover:bg-blue-700 text-white"
+                                onClick={handleUpdate}
+                            >
+                                Atualizar
                             </Button>
                         </DialogFooter>
                     </>
