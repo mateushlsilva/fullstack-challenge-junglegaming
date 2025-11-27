@@ -3,6 +3,7 @@ import { ClickableKanbanCard } from "../ClickKableKanbanCard";
 import { KanbanBoard, KanbanCards, KanbanHeader, KanbanProvider, type DragEndEvent } from "../ui/shadcn-io/kanban";
 import { StatusEnum } from "@/enums";
 import { useState } from "react";
+import { useKanbanStatus } from '@/hooks';
 
 type TaskKanbanProps = {
     tasks: TaskToKanban[]
@@ -10,6 +11,8 @@ type TaskKanbanProps = {
 
 export function TaskKanban({ tasks }: TaskKanbanProps) {
     const [features, setFeatures] = useState(tasks);
+    const kanbanStatus = useKanbanStatus();
+
     
     const columns = [
         { id: StatusEnum.TODO, name: StatusEnum.TODO, color: '#6B46C1' },
@@ -33,10 +36,12 @@ export function TaskKanban({ tasks }: TaskKanbanProps) {
         if (!over) {
           return;
         }
+        
         const status = columns.find(({ id }) => id === over.id);
         if (!status) {
           return;
         }
+        kanbanStatus.mutate({ id: active.id.toString(), status: over.id as StatusEnum})
         setFeatures(
           features.map((feature) => {
             if (feature.id === active.id) {
