@@ -1,6 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { env } from "@/env";
-import { useAuthStore, useTaskStore } from "@/stores";
+import { useAuthStore, useTaskStore, useUserStore } from "@/stores";
 import { useEffect } from "react";
 import type { CreateTaskEvent, UpdateTaskEvent, CreateCommentEvent } from '@/events';
 import type { GetTaskAssigneesAndCommentsType, Comments } from "@/types";
@@ -16,6 +16,7 @@ export function useAuthWebSocket() {
     const token = useAuthStore((state) => state.token)
     const addTasks = useTaskStore((state) => state.addPage)
     const updateTask = useTaskStore((state) => state.updateTask)
+    const user = useUserStore((state) => state.find)
 
     useEffect(() => {
         if (!token) return;
@@ -89,6 +90,7 @@ export function useAuthWebSocket() {
         console.log("O id foi muito bem entrege olha ele: ", data.id);
 
         const { task_id, user_id , id ,content } = data.data as CreateCommentEvent
+        const usuario = user(user_id.toString())
 
         updateTask(task_id.toString(), {
             comment: [
@@ -97,7 +99,12 @@ export function useAuthWebSocket() {
                 id,
                 content,
                 user_id: user_id.toString(),
-                created_at: new Date()
+                created_at: new Date(),
+                user: {
+                    id: usuario?.id,
+                    email: usuario?.userEmail,
+                    name: usuario?.userName
+                }
                 }
             ]
         })

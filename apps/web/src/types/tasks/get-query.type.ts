@@ -10,7 +10,12 @@ export type Comments = {
     id: number,
     user_id: string,
     content: string,
-    created_at: Date
+    created_at: Date,
+    user?: {
+        id?: number;
+        email?: string;
+        name?: string;
+    }
 }
 
 export type GetTaskAssigneesAndCommentsType = {
