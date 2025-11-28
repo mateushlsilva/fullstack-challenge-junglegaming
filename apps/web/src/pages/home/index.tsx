@@ -39,7 +39,6 @@ function Home() {
 
   if (isPending) console.log("Ta pegando")
   const tasks = useTaskStore((e) => e.tasks)
-  console.log(page);
 
   const isBottom = useIsBottom(200);
 

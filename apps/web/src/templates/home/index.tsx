@@ -15,6 +15,7 @@ type HomeTemplateProps = {
 export function HomeTemplate({ children }: HomeTemplateProps) {
     const filterSearch = useTaskStore((e) => e.filter)
     const logout = useAuthStore((state) => state.logout)
+    const clearTask = useTaskStore((state) => state.clear)
     const [priority, setPriority] = useState<PriorityEnum | null>(null)
     const [search, setSearch] = useState<string | null>(null)
     const navigator = useNavigate()
@@ -24,6 +25,7 @@ export function HomeTemplate({ children }: HomeTemplateProps) {
       const handleLogout = () => {
         console.log("Usuário deslogado!");
         logout()
+        clearTask()
         navigator({ to: '/login' })
     };
     useEffect(() => {

@@ -26,10 +26,23 @@ interface MultiSelectProps {
     onChange: (value: string[]) => void;
     placeholder?: string;
     onEndReached?: () => void;
+    defaultValue?: string | number | readonly string[];
 }
 
-export function MultiSelect({ options, value, onChange, placeholder = "Selecione...", onEndReached }: MultiSelectProps) {
+export function MultiSelect({ options, value, onChange, placeholder = "Selecione...", onEndReached, defaultValue }: MultiSelectProps) {
     const [open, setOpen] = React.useState(false)
+
+    React.useEffect(() => {
+        if (!defaultValue) return;
+
+        if (value.length === 0) {
+            const arr: string[] = Array.isArray(defaultValue)
+                ? defaultValue.map(String)
+                : [String(defaultValue)];
+
+            onChange(arr);
+        }
+    }, [defaultValue]);
 
     const toggle = (v: string) => {
         if (value.includes(v)) {
@@ -56,7 +69,7 @@ export function MultiSelect({ options, value, onChange, placeholder = "Selecione
             <PopoverTrigger asChild>
                 <Button
                     variant="outline"
-                    className="w-60 justify-between bg-[#1A1A1A] border-gray-700 text-[#737373]"
+                    className="w-60 justify-between bg-[#1A1A1A] border-gray-700 text-white"
                 >
                     {value.length === 0
                         ? placeholder
@@ -77,6 +90,7 @@ export function MultiSelect({ options, value, onChange, placeholder = "Selecione
                                     <CommandItem
                                         key={opt.value}
                                         onSelect={() => toggle(opt.value)}
+                                        defaultValue={defaultValue}
                                         className="cursor-pointer text-white"
                                     >
                                         <div
