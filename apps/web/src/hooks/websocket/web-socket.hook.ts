@@ -37,11 +37,23 @@ export function useAuthWebSocket() {
         console.log("Notificação recebida:", data);
         const { assigned_user_ids, id, taskDescription, taskDueDate, taskPriority, taskStatus, taskTitle } = data.data as CreateTaskEvent;
         let assignedIdCounter = 1;
-          const assigned = assigned_user_ids.map((user) => ({
-            user_id: user.toString(),
+
+        const assigned = assigned_user_ids.map((u) => {
+        const userFind = user(u.toString());
+
+        return {
+            user_id: u.toString(),
             assigned_at: new Date(),
-            id: assignedIdCounter ++,
-        }));
+            id: assignedIdCounter++,
+            user: userFind
+            ? {
+                id: userFind.id,
+                name: userFind.userName,
+                email: userFind.userEmail,
+                }
+            : undefined,
+        };
+        });
         const newData: GetTaskAssigneesAndCommentsType = { 
             id, 
             taskDescription, 
@@ -73,11 +85,21 @@ export function useAuthWebSocket() {
 
         const newAssignees = assigned_user_ids
             .filter(userId => !existingAssignees.some(a => Number(a.user_id) === userId))
-            .map((userId, index) => ({
-                user_id: userId.toString(),
-                assigned_at: new Date(),
-                id: existingAssignees.length + index + 1,
-            }));
+            .map(userId => {
+                const userFind = user(userId.toString());
+                return {
+                    user_id: userId.toString(),
+                    assigned_at: new Date(),
+                    id: existingAssignees.length + 1,
+                    user: userFind
+                        ? {
+                            id: userFind.id,
+                            name: userFind.userName,
+                            email: userFind.userEmail,
+                        }
+                        : undefined,
+                };
+        });
 
         const updatedAssignees = [...existingAssignees, ...newAssignees];
 

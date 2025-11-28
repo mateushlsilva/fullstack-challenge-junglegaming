@@ -4,6 +4,11 @@ export type Assignees = {
     id: number,
     user_id: string,
     assigned_at: Date,
+    user?: {
+        id?: number;
+        email?: string;
+        name?: string;
+    }
 }
 
 export type Comments = {
