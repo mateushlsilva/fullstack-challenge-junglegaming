@@ -8,7 +8,7 @@ type SearchProps = {
 export function Search({ onChange }: SearchProps) {
 
   return (
-    <div className="relative w-72">
+    <div className="relative w-48 md:w-72 sm:w-1/2 ">
         <Input 
         placeholder="Buscar por título..." 
         className="pl-10 bg-[#1A1A1A] border-gray-700 placeholder:text-gray-400 focus-visible:ring-indigo-500"

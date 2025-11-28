@@ -27,7 +27,7 @@ export function SelectStructure({ select, placeholder, onEndReached, onChange, .
     
     return (
         <Select onValueChange={onChange} {...props}>
-            <SelectTrigger className="w-[180px] bg-[#1A1A1A] border-gray-700 focus:ring-indigo-500">
+            <SelectTrigger className="w-[180px] bg-[#1A1A1A] border-gray-700 focus:ring-indigo-500 sm:w-1/4">
             <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent 

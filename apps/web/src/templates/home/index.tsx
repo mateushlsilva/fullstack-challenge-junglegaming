@@ -1,8 +1,11 @@
 import { CreateTaskDialog, Search, SelectStructure } from "@/components"
+import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { PriorityEnum } from "@/enums"
 import { useAuthWebSocket } from "@/hooks"
-import { useTaskStore } from "@/stores"
+import { useAuthStore, useTaskStore } from "@/stores"
+import { useNavigate } from "@tanstack/react-router"
+import { LogOut } from "lucide-react"
 import { useEffect, useState } from "react"
 
 type HomeTemplateProps = {
@@ -11,10 +14,18 @@ type HomeTemplateProps = {
 
 export function HomeTemplate({ children }: HomeTemplateProps) {
     const filterSearch = useTaskStore((e) => e.filter)
+    const logout = useAuthStore((state) => state.logout)
     const [priority, setPriority] = useState<PriorityEnum | null>(null)
     const [search, setSearch] = useState<string | null>(null)
+    const navigator = useNavigate()
     useAuthWebSocket()
 
+
+      const handleLogout = () => {
+        console.log("Usuário deslogado!");
+        logout()
+        navigator({ to: '/login' })
+    };
     useEffect(() => {
         filterSearch(priority, search)
     }, [priority, search])
@@ -46,6 +57,15 @@ export function HomeTemplate({ children }: HomeTemplateProps) {
                                     setPriority(value === 'Mostrar tudo' ? null : value as PriorityEnum)
                                 }}
                             />
+                            <Button
+                                variant="ghost" // Use ghost para ser discreto
+                                className="text-gray-400 hover:bg-[#1A1A1A] hover:text-red-400 p-2 transition-colors duration-200  sm:w-1/8"
+                                onClick={handleLogout}
+                                title="Sair do Sistema"
+                            >
+                                <LogOut className="w-5 h-5 mr-1" />
+                                Sair
+                            </Button>
                         </div>
                     </div>
                 </header>
