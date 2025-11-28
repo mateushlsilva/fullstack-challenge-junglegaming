@@ -4,6 +4,7 @@ import type { CreateTaskDto } from "../../schemas";
 
 import { toast } from "sonner"
 import { useNavigate } from "@tanstack/react-router";
+import { AxiosError } from "axios";
 
 type TaskUpdate = {
   id: number;
@@ -23,9 +24,10 @@ export const useTaskUpdate = () => {
 
     onError: (err) => {
       let message = "Erro desconhecido"
-      if (err?.response?.data?.statusCode === 400) message = "Dados Inválidos"
-      if (err?.response?.data?.statusCode === 404) message = "Task não encontrada"
-     
+      if (err instanceof AxiosError) {
+        if (err?.response?.data?.statusCode === 400) message = "Dados Inválidos"
+        if (err?.response?.data?.statusCode === 404) message = "Task não encontrada"
+      }
       console.error("Erro atualizar a task:", message);
       toast.error(`Erro ao atualizar a task. ${message}!`)
     },

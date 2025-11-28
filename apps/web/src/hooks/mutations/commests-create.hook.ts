@@ -3,6 +3,7 @@ import { CommentsService } from "../../services";
 import type { CreateCommentDto } from "../../schemas";
 
 import { toast } from "sonner"
+import { AxiosError } from "axios";
 
 type CommentCreateProps = {
     id: number;
@@ -20,7 +21,9 @@ export const useCommentCreate = () => {
 
     onError: (err) => {
       let message = "Erro desconhecido"
-      if (err?.response?.data?.statusCode === 400) message = "Dados Inválidos"
+      if (err instanceof AxiosError) {
+        if (err?.response?.data?.statusCode === 400) message = "Dados Inválidos"
+      }
      
       console.error("Erro cadastro do Comentário:", message);
       toast.error(`Erro ao criar o comentário. ${message}!`)

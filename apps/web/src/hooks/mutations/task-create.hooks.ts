@@ -4,6 +4,7 @@ import { TaskService } from "../../services";
 import type { CreateTaskDto } from "../../schemas";
 
 import { toast } from "sonner"
+import { AxiosError } from "axios";
 
 
 
@@ -20,8 +21,9 @@ export const useTaskCreate = () => {
 
     onError: (err) => {
       let message = "Erro desconhecido"
-      if (err?.response?.data?.statusCode === 400) message = "Dados Inválidos"
-     
+      if (err instanceof AxiosError) {
+        if (err?.response?.data?.statusCode === 400) message = "Dados Inválidos"
+      }
       console.error("Erro cadastro da task:", message);
       toast.error(`Erro ao criar a task. ${message}!`)
     },

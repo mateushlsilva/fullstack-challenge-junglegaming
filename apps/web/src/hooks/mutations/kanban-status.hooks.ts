@@ -4,6 +4,7 @@ import { useTaskStore } from '@/stores';
 import { toast } from "sonner"
 import { StatusEnum } from "@/enums";
 import type { TaskToKanban } from "@/types";
+import { AxiosError } from "axios";
 
 type kanban = {
   id: string;
@@ -37,9 +38,10 @@ export const useKanbanStatus = () => {
 
     onError: (err) => {
       let message = "Erro desconhecido"
-      if (err?.response?.data?.statusCode === 400) message = "Dados Inválidos"
-      if (err?.response?.data?.statusCode === 404) message = "Task não encontrada"
-
+      if (err instanceof AxiosError) {
+        if (err?.response?.data?.statusCode === 400) message = "Dados Inválidos"
+        if (err?.response?.data?.statusCode === 404) message = "Task não encontrada"
+      }
       toast.error(`Erro ao atualizar a task. ${message}!`)
     },
   });
