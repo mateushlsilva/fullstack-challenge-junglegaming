@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as HomeIndexRouteImport } from './routes/_home/index'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as TasksUpdateTaskIdRouteImport } from './routes/tasks/update/$taskId'
 
 const HomeIndexRoute = HomeIndexRouteImport.update({
   id: '/_home/',
@@ -28,35 +29,49 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TasksUpdateTaskIdRoute = TasksUpdateTaskIdRouteImport.update({
+  id: '/tasks/update/$taskId',
+  path: '/tasks/update/$taskId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/': typeof HomeIndexRoute
+  '/tasks/update/$taskId': typeof TasksUpdateTaskIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/': typeof HomeIndexRoute
+  '/tasks/update/$taskId': typeof TasksUpdateTaskIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_home/': typeof HomeIndexRoute
+  '/tasks/update/$taskId': typeof TasksUpdateTaskIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/register' | '/'
+  fullPaths: '/login' | '/register' | '/' | '/tasks/update/$taskId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/register' | '/'
-  id: '__root__' | '/_auth/login' | '/_auth/register' | '/_home/'
+  to: '/login' | '/register' | '/' | '/tasks/update/$taskId'
+  id:
+    | '__root__'
+    | '/_auth/login'
+    | '/_auth/register'
+    | '/_home/'
+    | '/tasks/update/$taskId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   HomeIndexRoute: typeof HomeIndexRoute
+  TasksUpdateTaskIdRoute: typeof TasksUpdateTaskIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +97,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tasks/update/$taskId': {
+      id: '/tasks/update/$taskId'
+      path: '/tasks/update/$taskId'
+      fullPath: '/tasks/update/$taskId'
+      preLoaderRoute: typeof TasksUpdateTaskIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +111,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   HomeIndexRoute: HomeIndexRoute,
+  TasksUpdateTaskIdRoute: TasksUpdateTaskIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
