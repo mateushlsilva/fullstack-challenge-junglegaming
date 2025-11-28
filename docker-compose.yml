@@ -7,6 +7,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/web/Dockerfile
+      target: development
     ports:
       - '3000:5173'
     volumes:
@@ -26,6 +27,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/api-gateway/Dockerfile
+      target: production
     ports:
       - '3001:3001'
     env_file:
@@ -36,7 +38,7 @@ services:
       - /app/node_modules
       - /app/apps/api-gateway/node_modules
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     depends_on:
       db:
         condition: service_started
@@ -51,6 +53,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/auth-service/Dockerfile
+      target: production
     expose:
       - '3002'
     env_file:
@@ -61,7 +64,7 @@ services:
       - /app/node_modules
       - /app/apps/auth-service/node_modules
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     depends_on:
       db:
         condition: service_started
@@ -76,6 +79,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/tasks-service/Dockerfile
+      target: production
     expose:
       - '3003'
     env_file:
@@ -86,7 +90,7 @@ services:
       - /app/node_modules
       - /app/apps/tasks-service/node_modules
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     depends_on:
       db:
         condition: service_started
@@ -101,6 +105,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/notifications-service/Dockerfile
+      target: production
     expose:
       - '3004'
     env_file:
@@ -111,7 +116,7 @@ services:
       - /app/node_modules
       - /app/apps/notifications-service/node_modules
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     depends_on:
       db:
         condition: service_started
