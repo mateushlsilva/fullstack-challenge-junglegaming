@@ -60,31 +60,6 @@
   --toastify-color-progress-dark: var(--primary);
 }
 
-
-:root[data-theme='light'] {
-  
-  --gray-100: #0A0A0A; 
-  --gray-200: #171717;
-  --gray-300: #272f43;
-  --gray-400: #363d56;
-  --gray-500: #454f6a;
-  --gray-600: #555f7d;
-  --gray-700: #aab3cc;
-  --gray-800: #cdd3e1;
-  --gray-900: #e6e9f0; /* Fundo principal claro */
-
- 
-  --text-default: #0a0f1a;
-  --text-muted: #272f43;
-
-  --link-color: #0b8a60;
-  --link-hover: #065f46;
-
- 
-  --toastify-text-color-light: #e6e9f0;
-  --toastify-text-color-dark: #e6e9f0;
-}
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

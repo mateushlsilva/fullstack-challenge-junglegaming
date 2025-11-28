@@ -22,7 +22,7 @@ export function HomeTemplate({ children }: HomeTemplateProps) {
     useAuthWebSocket()
 
 
-      const handleLogout = () => {
+    const handleLogout = () => {
         console.log("Usuário deslogado!");
         logout()
         clearTask()
@@ -34,17 +34,17 @@ export function HomeTemplate({ children }: HomeTemplateProps) {
 
     return (
         <>
-            <div className="flex flex-col p-6 bg-[#0A0A0A] text-white m-b-0">
+            <div className="flex flex-col p-6 bg-[#0A0A0A] text-white ">
                 <header className="mb-8">
 
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-6">
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+                            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
                                 Painel de Tarefas
                             </h1>
                             <CreateTaskDialog/>
                         </div>
-                        <div className="flex items-center space-x-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 md:flex-row md:items-center md:gap-4 w-full lg:w-auto">
                             
                             <Search onChange={(value) => setSearch(value.target.value)}/>
                             <SelectStructure 
@@ -60,8 +60,8 @@ export function HomeTemplate({ children }: HomeTemplateProps) {
                                 }}
                             />
                             <Button
-                                variant="ghost" // Use ghost para ser discreto
-                                className="text-gray-400 hover:bg-[#1A1A1A] hover:text-red-400 p-2 transition-colors duration-200  sm:w-1/8"
+                                variant="ghost"
+                                className="text-gray-400 hover:bg-[#1A1A1A] hover:text-red-400 p-2 transition-colors duration-200"
                                 onClick={handleLogout}
                                 title="Sair do Sistema"
                             >
