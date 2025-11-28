@@ -1,135 +1,287 @@
-# Turborepo starter
+# 🧩 Sistema de Gestão de Tarefas Colaborativo
 
-This Turborepo starter is maintained by the Turborepo core team.
+**Desafio Full-stack Júnior — Jungle Gaming**
 
-## Using this example
+Este repositório contém a implementação completa do sistema solicitado no desafio Full-stack, incluindo monorepo com Turborepo, microserviços Nest.js comunicando-se via RabbitMQ, API Gateway, WebSocket em tempo real e frontend React com TanStack Router + shadcn/ui.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+# 📐 Arquitetura Geral
 
 ```
-cd my-turborepo
+                      ┌───────────────────────┐
+                      │       Front-end       │
+                      │   React + TanStack    │
+                      │   WebSocket Client    │
+                      └──────────┬────────────┘
+                                 │ HTTP / WS
+                                 ▼
+                     ┌──────────────────────────┐
+                     │      API Gateway         │
+                     │  Nest.js (HTTP + WS)     │
+                     │  Auth Guards + Swagger   │
+                     └──────────┬───────────────┘
+                                │ RPC + Events (RabbitMQ)
+        ┌───────────────────────┼─────────────────────────────┐
+        ▼                       ▼                             ▼
+┌───────────────┐     ┌────────────────┐          ┌────────────────────┐
+│ Auth Service  │     │ Tasks Service  │          │ Notifications Svc  │
+│ JWT, Users    │     │ CRUD, Comments │          │ WebSocket,         │
+│ PostgreSQL    │     │ PostgreSQL     │          │ RabbitMQ Consumer  │
+└───────────────┘     └────────────────┘          └────────────────────┘
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+                     ┌─────────────────────────────┐
+                     │         RabbitMQ            │
+                     │   broker de mensageria      │
+                     └─────────────────────────────┘
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+                     ┌─────────────────────────────┐
+                     │          PostgreSQL         │
+                     │ DB compartilhado por serviços│
+                     └─────────────────────────────┘
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+---
+
+# 🚀 Tecnologias Utilizadas
+
+### **Front-end**
+
+* React.js
+* TanStack Router
+* TanStack Query (diferencial)
+* shadcn/ui + Tailwind CSS
+* WebSocket Client (Socket.io)
+* Zustand para auth
+* React Hook Form + Zod
+* Skeleton loaders e toast notifications.
+
+
+### **Back-end**
+
+* Nest.js (API Gateway + 3 microserviços)
+* TypeORM + PostgreSQL
+* RabbitMQ (event-driven)
+* Swagger / OpenAPI
+* WebSocket Gateway
+* Pino para logs
+* JWT
+* class-validator
+* health checks
+
+### **Infra**
+
+* Docker & Docker Compose
+* Turborepo para monorepo
+
+---
+
+# 📂 Estrutura do Repositório
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+.
+├── apps/
+│   ├── web/                     # Front-end React
+│   ├── api-gateway/             # HTTP + WebSocket + Swagger
+│   ├── auth-service/            # Login, cadastro e JWT
+│   ├── tasks-service/           # CRUD + comentários + histórico
+│   └── notifications-service/   # WebSockets + eventos tempo real
+├── packages/
+│   ├── common/
+│   ├── utils/
+│   ├── eslint-config/
+│   └── tsconfig/
+├── docker-compose.yml
+├── turbo.json
+└── README.md
 ```
 
-### Develop
+---
 
-To develop all apps and packages, run the following command:
+# ⚙️ Como Rodar o Projeto
 
-```
-cd my-turborepo
+### 1. Clonar o repositório
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+git clone https://github.com/mateushlsilva/fullstack-challenge-junglegaming.git
+cd fullstack-challenge-junglegaming
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### 2. Criar os arquivos `.env`
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+Cada app possui `.env.example`.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+Crie os arquivos via Makefile:
+
+```bash
+make env
 ```
 
-### Remote Caching
+### 3. Subir toda a stack
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```bash
+make run
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### 4. Parar toda a stack
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+make stop
 ```
 
-## Useful Links
+### 5. Acesse:
 
-Learn more about the power of Turborepo:
+| Serviço     | URL                                                              |
+| ----------- | ---------------------------------------------------------------- |
+| Front-end   | [http://localhost:3000](http://localhost:3000)                             |
+| API Gateway | [http://localhost:3001](http://localhost:3001)                   |
+| Swagger     | [http://localhost:3001/api/docs](http://localhost:3001/api/docs) |
+| RabbitMQ UI | [http://localhost:15672](http://localhost:15672) (admin/admin)   |
+| PostgreSQL  | localhost:5432                                                   |
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+---
+
+# 🔐 Autenticação
+
+* Register: `POST /api/auth/register`
+* Login: `POST /api/auth/login`
+* Refresh Token: `POST /api/auth/refresh`
+* AccessToken 15min
+* RefreshToken 7 dias
+
+Proteção de rotas configurada no **API Gateway** com Guards.
+
+---
+
+# 📌 Funcionalidades
+
+### ✔ CRUD de Tarefas
+
+### ✔ Comentários
+
+### ✔ Histórico/Audit Log
+
+### ✔ Atribuição a usuários
+
+### ✔ Paginação
+
+### ✔ Busca e filtros
+
+### ✔ UI responsiva com shadcn/ui
+
+### ✔ WebSocket com notificações em tempo real
+
+* `task:created`
+* `task:updated`
+* `comment:new`
+
+---
+
+# 🔄 Fluxo de Eventos (RabbitMQ)
+
+```
+Usuário cria tarefa
+       │
+       ▼
+API Gateway -> tasks-service (rpc)
+       │
+       ▼
+tasks-service publica "task.created" no RabbitMQ
+       │
+       ▼
+notifications-service consome evento
+       │
+       ▼
+envia WebSocket para usuários conectados
+```
+
+---
+
+# 🧠 Decisões Técnicas & Trade-offs
+
+### ✔ **Usei API Gateway centralizado**
+
+Motivo: controlar JWT, documentação e rate-limit em um único ponto.
+
+### ✔ **Banco único (Postgres) em vez de um por serviço**
+
+Trade-off: menos isolamento.
+
+### ✔ **Socket.io**
+
+Facilita reconexão e fallback (melhor DX).
+
+### ✔ **TanStack Router ao invés de React Router**
+
+Mais moderno, sem loaders opcionais, navegação mais controlada.
+
+### ✔ **Mensageria para consistência eventual**
+
+Garantir que tasks e comentários sempre gerem eventos.
+
+### ✔ **TanStack Query para gerenciamento de dados remotos**
+
+Gerenciar dados assíncronos por oferecer cache automático, revalidação inteligente e sincronização em tempo real.
+
+### ✔ **Zustand para estado global de autenticação**
+
+Leve, simples e permitir um fluxo de estado previsível sem a complexidade de soluções maiores como Redux.
+
+### ✔ **Kanban para gerenciamento de tarefas**
+
+Implementei o Kanban para organizar e manipular visualmente as tarefas de forma prática e intuitiva.
+
+---
+
+# 🐛 Problemas Conhecidos
+
+### 1. 💬 WebSocket pode demorar alguns minutos para conectar via Nginx
+
+Mesmo configurando `proxy_set_header Upgrade`, o handshake fica lento.
+Procure usar o WebSocket no modo de `desenvolvimento`.
+
+### 2. 📦 Turborepo + hot reload no Docker pode ficar mais lento
+
+Montagem de volumes gera I/O elevado.
+
+---
+
+# 🚀 Melhorias Futuras
+
+* [ ] Testes unitários e2e
+* [ ] Cache com Redis
+* [ ] Alertas por e-mail quando tarefa mudar
+
+---
+
+# ⏱ Tempo Gasto no Desenvolvimento
+
+| Parte                               | Tempo estimado |
+| ----------------------------------- | -------------- |
+| **Back-end (1 semana)**             | ~25h           |
+| Configuração do monorepo + Docker   | ~4h            |
+| API Gateway + Auth                  | ~7h            |
+| Tasks Service + CRUD + histórico    | ~8h            |
+| Notifications + WebSocket + eventos | ~6h            |
+| **Front-end (1 semana)**            | ~21h           |
+| React + TanStack Router + UI        | ~9h            |
+| Kanban + filtros + comentários      | ~8h            |
+| Documentação e refinamentos         | ~4h            |
+
+
+
+---
+
+# 📜 Instruções Específicas
+
+* Para trocar URLs no front, use o `.env` e variáveis `VITE_API_URL` e `VITE_WS_URL`.
+* Para reconstruir tudo do zero:
+
+```bash
+make stop
+make run
+```
+
+## 🧑‍💻 Autor
+
+Mateus Silva
